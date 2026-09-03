@@ -44,7 +44,7 @@ function Cell({
       title={title}
       className={`flex min-w-0 flex-col justify-center gap-1 overflow-hidden border-r border-ink-700 px-4 py-2 ${className}`}
     >
-      <div className="truncate t-meta font-semibold tracking-[0.14em] text-ink-400 uppercase">
+      <div className="shrink-0 truncate t-meta font-semibold tracking-[0.14em] text-ink-400 uppercase">
         {label}
       </div>
       {children}
@@ -55,7 +55,7 @@ function Cell({
 /** The sub-line under a figure: what it was measured over. Never wraps. */
 function Provenance({ children }: { children: ReactNode }) {
   return (
-    <div className="truncate t-meta whitespace-nowrap text-ink-400">
+    <div className="shrink-0 truncate t-meta whitespace-nowrap text-ink-400">
       {children}
     </div>
   )
@@ -164,7 +164,7 @@ export function MetricsStrip({
 }) {
   if (!metrics) {
     return (
-      <div className="flex h-[164px] shrink-0 items-center border border-ink-700 bg-ink-900 px-3 t-meta text-ink-400">
+      <div className="flex h-[182px] shrink-0 items-center border border-ink-700 bg-ink-900 px-3 t-meta text-ink-400">
         {error ? (
           <span className="text-state-deny">metrics unavailable — {error}</span>
         ) : (
@@ -203,7 +203,7 @@ export function MetricsStrip({
       ) : null}
 
       <div
-        className={`mt-1.5 grid h-[62px] shrink-0 border border-ink-700 bg-ink-900 ${
+        className={`mt-1.5 grid h-[80px] shrink-0 border border-ink-700 bg-ink-900 ${
           view === 'operator'
             ? 'grid-cols-[132px_minmax(196px,1fr)_minmax(210px,240px)]'
             : 'grid-cols-[132px_minmax(196px,1fr)_196px_178px_150px]'
