@@ -318,6 +318,8 @@ export interface Health {
   status: string
   razorpay_key_prefix: string
   stub_mode: boolean
+  /** synthetic | replay | live — known before a click, for the popup pre-open. */
+  payments_mode?: string
   tamper_enabled: boolean
   llm?: {
     configured: boolean

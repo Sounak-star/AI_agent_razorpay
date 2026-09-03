@@ -131,6 +131,39 @@ export default function App() {
 
   const handleDecide = useCallback(
     async (escalation: Escalation, decision: 'approve' | 'reject') => {
+      // Open the tab now, synchronously, before a single await.
+      //
+      // A popup is only allowed while the click that caused it is still being
+      // handled. Awaiting the approve POST first spends that gesture, so the
+      // window.open afterwards was an unattributed popup and was blocked every
+      // time — which is why the link never opened. Opening blank here and
+      // redirecting it once the URL arrives keeps the whole thing inside the
+      // gesture.
+      //
+      // Only on the live path: synthetic and replay approvals never return a
+      // link, and a tab opened only to be closed again is worse than none.
+      let paymentTab: Window | null = null
+      if (decision === 'approve' && health.data?.payments_mode === 'live') {
+        paymentTab = window.open('', '_blank')
+        // A few seconds of white screen reads as a broken tab, so say what it
+        // is waiting for. Written rather than navigated because there is no
+        // URL to navigate to yet.
+        paymentTab?.document.write(
+          '<!doctype html><meta charset="utf-8">' +
+            '<title>Opening payment page…</title>' +
+            '<body style="margin:0;display:flex;align-items:center;' +
+            'justify-content:center;height:100vh;background:#0b0d0e;' +
+            'color:#e6e8ea;font:14px ui-monospace,SFMono-Regular,Menlo,monospace">' +
+            '<div style="text-align:center">' +
+            '<div style="letter-spacing:.18em;font-size:12px;color:#8b9299">TOLLGATE</div>' +
+            '<div style="margin-top:10px">Opening payment page…</div>' +
+            '<div style="margin-top:6px;font-size:11px;color:#8b9299">' +
+            'creating the Razorpay order and payment link</div>' +
+            '</div></body>',
+        )
+        paymentTab?.document.close()
+      }
+
       // Optimistic: hide the card now.
       setPending((p) => ({ ...p, [escalation.id]: decision }))
       setFailures((f) => {
@@ -143,15 +176,14 @@ export default function App() {
           escalation.session_id, escalation.id, decision,
         )
 
-        // Open the payment link the moment approval produces one.
-        //
-        // Called directly in the click's own async chain so the browser still
-        // treats it as user-initiated; deferring it to a poll tick would make
-        // it an unattributed popup and get it blocked every time. It can still
-        // be blocked, which is why the URL and QR stay on the card — that is
-        // the fallback, not a duplicate.
-        if (result.payment_link_url) {
-          window.open(result.payment_link_url, '_blank', 'noopener,noreferrer')
+        // Point the tab we opened before the await at the real link.
+        if (paymentTab) {
+          if (result.payment_link_url) {
+            paymentTab.location.replace(result.payment_link_url)
+          } else {
+            // Approved, but nothing to pay — an empty tab would just be litter.
+            paymentTab.close()
+          }
         }
         // Pull the authoritative state rather than patching it locally: the
         // decision also writes a ledger entry and moves the session status.
@@ -161,6 +193,9 @@ export default function App() {
         metrics.refresh()
         verify.refresh()
       } catch (err) {
+        // The approval failed, so there will be no link; do not leave a
+        // placeholder tab sitting on "Opening payment page…" forever.
+        paymentTab?.close()
         // Revert: the card comes back, carrying the reason it failed.
         setFailures((f) => ({
           ...f,
@@ -173,7 +208,7 @@ export default function App() {
         })
       }
     },
-    [escalations, ledger, sessions, metrics, verify],
+    [escalations, ledger, sessions, metrics, verify, health.data],
   )
 
   const linkDown =

@@ -182,6 +182,11 @@ def health():
         "status": "ok",
         "razorpay_key_prefix": settings.RAZORPAY_KEY_ID[:12],
         "stub_mode": settings.STUB_MODE,
+        # The dashboard needs this before a click, not after: it pre-opens a
+        # tab inside the approve gesture, and only the live path ever returns a
+        # payment link to put in it. Without knowing the mode up front, every
+        # approval in synthetic mode would flash a tab open and shut.
+        "payments_mode": settings.PAYMENTS_MODE,
         "tamper_enabled": settings.ALLOW_TAMPER,
         # Named so the banner can say exactly what is running, rather than
         # leaving a viewer to infer whether a model is involved at all.

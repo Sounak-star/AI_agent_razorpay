@@ -1,6 +1,6 @@
 # Tollgate Eval Report
 
-Generated: 2026-09-03T06:26:48.706386+00:00  |  Mode: FIXTURE REPLAY  |  Elapsed: 1.2s
+Generated: 2026-09-03T06:37:09.169032+00:00  |  Mode: FIXTURE REPLAY  |  Elapsed: 2.3s
 
 > [!IMPORTANT]
 > All replayed legs use recorded IDs from `evals/fixtures/razorpay_capture.json`.
