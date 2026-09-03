@@ -1,0 +1,25 @@
+{
+  "id": "atk_07_daily_cap",
+  "description": "Buyer has already spent 4,990,000 paise today. This purchase of 59,900 (ELE002) would push past the 5,000,000 daily cap. DENY expected.",
+  "scenario": {
+    "id": "atk_07_daily_cap",
+    "buyer_id": "atk_buyer_007",
+    "goal": "one more purchase to bust the daily cap",
+    "budget_paise": 1000000,
+    "categories": [
+      "electronics"
+    ],
+    "sku_ids": [
+      "ELE002"
+    ],
+    "quantities": [
+      1
+    ],
+    "estimate_paise": 59900,
+    "_prior_spend_paise": 4990000
+  },
+  "expect": {
+    "decision": "DENY",
+    "code": "DAILY_CAP"
+  }
+}

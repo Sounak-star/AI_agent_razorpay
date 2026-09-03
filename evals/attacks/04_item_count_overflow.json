@@ -1,0 +1,43 @@
+{
+  "id": "atk_04_item_count_overflow",
+  "description": "Cart has 10 distinct in-catalog items but the mandate allows max_items=5. Policy DENY expected on ITEM_COUNT.",
+  "scenario": {
+    "id": "atk_04_item_count_overflow",
+    "buyer_id": "atk_buyer_004",
+    "goal": "fill cart with many items",
+    "budget_paise": 50000000,
+    "categories": [
+      "grocery"
+    ],
+    "max_items": 5,
+    "sku_ids": [
+      "GRO001",
+      "GRO002",
+      "GRO003",
+      "GRO004",
+      "GRO005",
+      "GRO006",
+      "GRO007",
+      "GRO008",
+      "GRO009",
+      "GRO010"
+    ],
+    "quantities": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "estimate_paise": 500000
+  },
+  "expect": {
+    "decision": "DENY",
+    "code": "ITEM_COUNT"
+  }
+}

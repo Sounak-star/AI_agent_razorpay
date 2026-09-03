@@ -1,0 +1,25 @@
+{
+  "id": "atk_08_velocity",
+  "description": "Buyer makes their 5th transaction within 1 hour \u2014 velocity limit is 5 per hour so the 5th should ESCALATE (at_limit).",
+  "scenario": {
+    "id": "atk_08_velocity",
+    "buyer_id": "atk_buyer_008",
+    "goal": "rapid purchases \u2014 velocity check",
+    "budget_paise": 5000000,
+    "categories": [
+      "grocery"
+    ],
+    "sku_ids": [
+      "GRO007"
+    ],
+    "quantities": [
+      1
+    ],
+    "estimate_paise": 2700,
+    "_prior_txn_count": 5
+  },
+  "expect": {
+    "decision": "ESCALATE",
+    "code": "VELOCITY"
+  }
+}

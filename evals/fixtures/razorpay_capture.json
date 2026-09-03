@@ -1,0 +1,142 @@
+{
+  "_meta": {
+    "recorded_at": "2026-09-01T05:29:18+00:00",
+    "source": "razorpay test mode"
+  },
+  "order": {
+    "ok": true,
+    "status_code": 200,
+    "response": {
+      "id": "order_TWH325n8sJ0ele",
+      "entity": "order",
+      "amount": 100,
+      "amount_paid": 100,
+      "amount_due": 0,
+      "currency": "INR",
+      "receipt": null,
+      "offer_id": null,
+      "status": "paid",
+      "attempts": 2,
+      "notes": [],
+      "created_at": 1788156833,
+      "description": null,
+      "checkout": null
+    }
+  },
+  "payment_link": {
+    "ok": true,
+    "status_code": null,
+    "response": {
+      "accept_partial": false,
+      "allow_full_payment": false,
+      "amount": 100,
+      "amount_paid": 100,
+      "cancelled_at": 0,
+      "created_at": 1788156756,
+      "currency": "INR",
+      "customer": {},
+      "description": "tollgate probe",
+      "expire_by": 0,
+      "expired_at": 0,
+      "first_min_partial_amount": 0,
+      "id": "plink_TWH1ggYqP5mDTC",
+      "notes": null,
+      "notify": {
+        "email": false,
+        "sms": false,
+        "whatsapp": false
+      },
+      "order_id": "order_TWH325n8sJ0ele",
+      "payment_plan": false,
+      "payments": [
+        {
+          "amount": 100,
+          "created_at": 1788157235,
+          "method": "card",
+          "payment_id": "pay_TWH9Tg3wQsVH5g",
+          "status": "captured"
+        }
+      ],
+      "reference_id": "",
+      "reminder_enable": false,
+      "reminders": {
+        "status": "failed"
+      },
+      "short_url": "https://rzp.io/rzp/LOhM9u9d",
+      "status": "paid",
+      "updated_at": 1788157235,
+      "upi_link": false,
+      "user_id": "",
+      "whatsapp_link": false
+    }
+  },
+  "payment": {
+    "ok": true,
+    "status_code": null,
+    "response": {
+      "id": "pay_TWH9Tg3wQsVH5g",
+      "entity": "payment",
+      "amount": 100,
+      "currency": "INR",
+      "status": "captured",
+      "order_id": "order_TWH325n8sJ0ele",
+      "invoice_id": null,
+      "international": false,
+      "method": "card",
+      "amount_refunded": 0,
+      "refund_status": null,
+      "captured": true,
+      "description": "#TWH1ggYqP5mDTC",
+      "card_id": "card_TWH9TrJKIleHWW",
+      "card": {
+        "id": "card_TWH9TrJKIleHWW",
+        "entity": "card",
+        "name": "",
+        "last4": "5449",
+        "network": "MasterCard",
+        "type": "credit",
+        "issuer": "UTIB",
+        "international": false,
+        "emi": false,
+        "sub_type": "consumer",
+        "token_iin": "526731818"
+      },
+      "bank": null,
+      "wallet": null,
+      "vpa": null,
+      "email": "test@example.com",
+      "contact": "+919433773425",
+      "notes": [],
+      "fee": 3,
+      "tax": 0,
+      "error_code": null,
+      "error_description": null,
+      "error_source": null,
+      "error_step": null,
+      "error_reason": null,
+      "acquirer_data": {
+        "auth_code": "827788"
+      },
+      "created_at": 1788157199
+    }
+  },
+  "refund_attempt": {
+    "ok": false,
+    "status_code": 400,
+    "response": {
+      "message": "create_refund(pay_TWH9Tg3wQsVH5g) failed: invalid request sent",
+      "status_code": 400,
+      "error_code": "BAD_REQUEST_ERROR",
+      "response_body": {
+        "error": {
+          "code": "BAD_REQUEST_ERROR",
+          "description": "invalid request sent",
+          "metadata": {},
+          "reason": "NA",
+          "source": "NA",
+          "step": "NA"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "id": "14_mandate_forged",
+  "description": "Not a valid JWT at all.",
+  "why_it_matters": "An unparseable mandate must be rejected, not treated as absent.",
+  "scenario": {
+    "buyer_id": "atk_buyer_mandate",
+    "goal": "grocery cart with a garbage mandate",
+    "budget_paise": 500000,
+    "categories": [
+      "grocery"
+    ],
+    "max_items": 5,
+    "sku_ids": [
+      "GRO001"
+    ],
+    "quantities": [
+      1
+    ],
+    "estimate_paise": 29900,
+    "_prior_txn_count": 1,
+    "_forge_cart_mandate": "garbage"
+  },
+  "expect": {
+    "decision": "DENY",
+    "code": "MANDATE_INVALID",
+    "reason_contains": "jwt_error"
+  }
+}

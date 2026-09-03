@@ -1,0 +1,94 @@
+@import 'tailwindcss';
+
+/*
+  Tollgate control plane — design tokens.
+
+  The palette is deliberately small. Chrome is greyscale; colour carries exactly
+  one meaning, which is state. If something on screen is coloured, it is telling
+  you the status of a session, a verdict, or the chain. Nothing is coloured for
+  decoration.
+*/
+@theme {
+  --font-mono:
+    ui-monospace, 'SF Mono', 'JetBrains Mono', 'Cascadia Mono', Menlo,
+    Consolas, monospace;
+
+  /* Greyscale ramp — surfaces, borders, text */
+  --color-ink-950: #08080a; /* page */
+  --color-ink-900: #0d0d10; /* panel */
+  --color-ink-850: #111114; /* panel header / table head */
+  --color-ink-800: #16161a; /* row hover */
+  --color-ink-700: #1e1e24; /* border */
+  --color-ink-600: #2a2a32; /* border, emphasised */
+  --color-ink-400: #6b6b76; /* muted text */
+  --color-ink-300: #8d8d99; /* secondary text */
+  --color-ink-100: #d7d7de; /* primary text */
+  --color-ink-050: #f2f2f5; /* headline text */
+
+  /* State — the only colours in the system */
+  --color-state-allow: #3fb950;
+  --color-state-deny: #f85149;
+  --color-state-escalate: #d29922;
+  --color-state-refund: #58a6ff;
+
+  /* Single interaction accent: selection, focus, active filters */
+  --color-accent: #e8913a;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-ink-950);
+  color: var(--color-ink-100);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  /* A control plane is a fixed-frame instrument: the page itself never
+     scrolls, individual panels do. */
+  overflow: hidden;
+}
+
+/* Thin, low-contrast scrollbars — panels scroll a lot and the bars should not
+   compete with the data. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ink-600) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--color-ink-600);
+  border-radius: 0;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ink-400);
+}
+
+/* Numeric columns must align across rows — seq, amounts, latency. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes tollgate-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+.pulse {
+  animation: tollgate-pulse 2s ease-in-out infinite;
+}

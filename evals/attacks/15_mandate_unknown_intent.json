@@ -1,0 +1,28 @@
+{
+  "id": "15_mandate_unknown_intent",
+  "description": "Cart mandate references an intent JTI that was never issued.",
+  "why_it_matters": "A cart cannot descend from a mandate that does not exist.",
+  "scenario": {
+    "buyer_id": "atk_buyer_mandate",
+    "goal": "grocery cart with a unknown intent mandate",
+    "budget_paise": 500000,
+    "categories": [
+      "grocery"
+    ],
+    "max_items": 5,
+    "sku_ids": [
+      "GRO001"
+    ],
+    "quantities": [
+      1
+    ],
+    "estimate_paise": 29900,
+    "_prior_txn_count": 1,
+    "_forge_cart_mandate": "unknown_intent"
+  },
+  "expect": {
+    "decision": "DENY",
+    "code": "MANDATE_INVALID",
+    "reason_contains": "intent_jti_not_found"
+  }
+}

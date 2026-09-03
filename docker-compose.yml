@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: tollgate
+      POSTGRES_PASSWORD: tollgate
+      POSTGRES_DB: tollgate
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tollgate"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      # Overrides DATABASE_URL from .env when running via compose
+      DATABASE_URL: postgresql+psycopg2://tollgate:tollgate@postgres:5432/tollgate
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - ./keys:/app/keys
+    working_dir: /app
+    command: uvicorn server.main:app --host 0.0.0.0 --port 8000 --reload
+
+  dashboard:
+    image: node:20-alpine
+    working_dir: /app
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./dashboard:/app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+
+volumes:
+  pgdata:

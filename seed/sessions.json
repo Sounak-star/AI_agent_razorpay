@@ -1,0 +1,456 @@
+[
+  {
+    "id": "sess_001_grocery_normal",
+    "buyer_id": "buyer_alice",
+    "goal": "weekly grocery shopping",
+    "budget_paise": 500000,
+    "categories": [
+      "grocery"
+    ],
+    "max_items": 10,
+    "sku_ids": [
+      "GRO001",
+      "GRO007",
+      "GRO008"
+    ],
+    "quantities": [
+      1,
+      2,
+      1
+    ],
+    "estimate_paise": 45000
+  },
+  {
+    "id": "sess_002_grocery_budget_tight",
+    "buyer_id": "buyer_bob",
+    "goal": "quick grocery run",
+    "budget_paise": 5100,
+    "categories": [
+      "grocery"
+    ],
+    "max_items": 5,
+    "sku_ids": [
+      "GRO007"
+    ],
+    "quantities": [
+      2
+    ],
+    "estimate_paise": 5000,
+    "_note": "headroom too small for any offer -> offer withheld"
+  },
+  {
+    "id": "sess_003_books_normal",
+    "buyer_id": "buyer_carol",
+    "goal": "buy some books",
+    "budget_paise": 1000000,
+    "categories": [
+      "books"
+    ],
+    "max_items": 5,
+    "sku_ids": [
+      "BOK002",
+      "BOK003"
+    ],
+    "quantities": [
+      1,
+      1
+    ],
+    "estimate_paise": 150000,
+    "_accept_upsell": false,
+    "_note": "offer made and declined by the buyer"
+  },
+  {
+    "id": "sess_004_multi_category",
+    "buyer_id": "buyer_dave",
+    "goal": "mixed shopping cart",
+    "budget_paise": 2000000,
+    "categories": [
+      "grocery",
+      "home"
+    ],
+    "max_items": 8,
+    "sku_ids": [
+      "GRO001",
+      "HOM001"
+    ],
+    "quantities": [
+      1,
+      1
+    ],
+    "estimate_paise": 200000
+  },
+  {
+    "id": "sess_005_single_expensive_item",
+    "buyer_id": "buyer_eve",
+    "goal": "buy a laptop",
+    "budget_paise": 100000000,
+    "categories": [
+      "electronics"
+    ],
+    "max_items": 2,
+    "sku_ids": [
+      "ELE001"
+    ],
+    "quantities": [
+      1
+    ],
+    "estimate_paise": 999900
+  },
+  {
+    "id": "sess_006_over_budget_denied",
+    "buyer_id": "buyer_frank",
+    "goal": "upgrade the home office setup",
+    "budget_paise": 50000,
+    "categories": [
+      "electronics"
+    ],
+    "max_items": 4,
+    "sku_ids": [
+      "ELE009",
+      "ELE007"
+    ],
+    "quantities": [
+      1,
+      1
+    ],
+    "estimate_paise": 45000,
+    "_expected_outcome": "deny",
+    "_note": "cart totals 299800 against a 50000 budget -> PER_TXN_CAP"
+  },
+  {
+    "id": "sess_007_new_merchant_escalated",
+    "buyer_id": "buyer_grace",
+    "goal": "first order with this merchant",
+    "budget_paise": 300000,
+    "categories": [
+      "books"
+    ],
+    "max_items": 3,
+    "sku_ids": [
+      "BOK005"
+    ],
+    "quantities": [
+      1
+    ],
+    "estimate_paise": 79900,
+    "_expect_new_merchant": true,
+    "_expected_outcome": "escalate",
+    "_note": "no prior settled transaction -> NEW_MERCHANT escalation"
+  },
+  {
+    "id": "sess_008_refunded_after_fulfilment_failure",
+    "buyer_id": "buyer_henry",
+    "goal": "replace a broken charger",
+    "budget_paise": 200000,
+    "categories": [
+      "electronics"
+    ],
+    "max_items": 3,
+    "sku_ids": [
+      "ELE002",
+      "ELE010"
+    ],
+    "quantities": [
+      1,
+      1
+    ],
+    "estimate_paise": 99800,
+    "_simulate_refund": true,
+    "_expected_outcome": "refund",
+    "_note": "allowed and captured, then refunded when fulfilment fails"
+  },
+  {
+    "id": "sess_009_pantry_restock",
+    "buyer_id": "buyer_alice",
+    "goal": "monthly pantry restock",
+    "budget_paise": 400000,
+    "categories": [
+      "grocery"
+    ],
+    "max_items": 12,
+    "sku_ids": [
+      "GRO002",
+      "GRO003",
+      "GRO005",
+      "GRO006"
+    ],
+    "quantities": [
+      1,
+      2,
+      1,
+      1
+    ],
+    "estimate_paise": 122000
+  },
+  {
+    "id": "sess_010_gift_books",
+    "buyer_id": "buyer_alice",
+    "goal": "birthday gift — a couple of books",
+    "budget_paise": 250000,
+    "categories": [
+      "books"
+    ],
+    "max_items": 4,
+    "sku_ids": [
+      "BOK001",
+      "BOK007"
+    ],
+    "quantities": [
+      1,
+      1
+    ],
+    "estimate_paise": 74800
+  },
+  {
+    "id": "sess_011_price_drift_escalated",
+    "buyer_id": "buyer_kiran",
+    "goal": "grab a keyboard, expected it to be cheap",
+    "budget_paise": 500000,
+    "categories": [
+      "electronics"
+    ],
+    "max_items": 3,
+    "sku_ids": [
+      "ELE007"
+    ],
+    "quantities": [
+      1
+    ],
+    "estimate_paise": 10000,
+    "_expected_outcome": "escalate",
+    "_note": "cart 99900 vs estimate 10000 -> PRICE_DRIFT (>1.05x)"
+  },
+  {
+    "id": "sess_012_category_denied",
+    "buyer_id": "buyer_lata",
+    "goal": "groceries only — cart slipped in a charger",
+    "budget_paise": 500000,
+    "categories": [
+      "grocery"
+    ],
+    "max_items": 5,
+    "sku_ids": [
+      "ELE002"
+    ],
+    "quantities": [
+      1
+    ],
+    "estimate_paise": 59900,
+    "_expected_outcome": "deny",
+    "_note": "electronics SKU under a grocery-only mandate -> CATEGORY_DENY"
+  },
+  {
+    "id": "sess_013_item_count_denied",
+    "buyer_id": "buyer_manoj",
+    "goal": "small top-up, but the agent filled the basket",
+    "budget_paise": 500000,
+    "categories": [
+      "grocery"
+    ],
+    "max_items": 2,
+    "sku_ids": [
+      "GRO001",
+      "GRO003",
+      "GRO005",
+      "GRO007"
+    ],
+    "quantities": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "estimate_paise": 100000,
+    "_expected_outcome": "deny",
+    "_note": "4 line items vs max_items 2 -> ITEM_COUNT"
+  },
+  {
+    "id": "sess_014_velocity_run_1",
+    "buyer_id": "buyer_rush",
+    "goal": "office coffee run #1 of the morning",
+    "budget_paise": 50000,
+    "categories": [
+      "grocery"
+    ],
+    "max_items": 2,
+    "sku_ids": [
+      "GRO007"
+    ],
+    "quantities": [
+      1
+    ],
+    "estimate_paise": 2500
+  },
+  {
+    "id": "sess_015_velocity_run_2",
+    "buyer_id": "buyer_rush",
+    "goal": "office coffee run #2 of the morning",
+    "budget_paise": 50000,
+    "categories": [
+      "grocery"
+    ],
+    "max_items": 2,
+    "sku_ids": [
+      "GRO007"
+    ],
+    "quantities": [
+      1
+    ],
+    "estimate_paise": 2500
+  },
+  {
+    "id": "sess_016_velocity_run_3",
+    "buyer_id": "buyer_rush",
+    "goal": "office coffee run #3 of the morning",
+    "budget_paise": 50000,
+    "categories": [
+      "grocery"
+    ],
+    "max_items": 2,
+    "sku_ids": [
+      "GRO007"
+    ],
+    "quantities": [
+      1
+    ],
+    "estimate_paise": 2500
+  },
+  {
+    "id": "sess_017_velocity_run_4",
+    "buyer_id": "buyer_rush",
+    "goal": "office coffee run #4 of the morning",
+    "budget_paise": 50000,
+    "categories": [
+      "grocery"
+    ],
+    "max_items": 2,
+    "sku_ids": [
+      "GRO007"
+    ],
+    "quantities": [
+      1
+    ],
+    "estimate_paise": 2500
+  },
+  {
+    "id": "sess_018_velocity_run_5",
+    "buyer_id": "buyer_rush",
+    "goal": "office coffee run #5 of the morning",
+    "budget_paise": 50000,
+    "categories": [
+      "grocery"
+    ],
+    "max_items": 2,
+    "sku_ids": [
+      "GRO007"
+    ],
+    "quantities": [
+      1
+    ],
+    "estimate_paise": 2500
+  },
+  {
+    "id": "sess_019_velocity_run_6",
+    "buyer_id": "buyer_rush",
+    "goal": "office coffee run #6 of the morning",
+    "budget_paise": 50000,
+    "categories": [
+      "grocery"
+    ],
+    "max_items": 2,
+    "sku_ids": [
+      "GRO007"
+    ],
+    "quantities": [
+      1
+    ],
+    "estimate_paise": 2500,
+    "_expected_outcome": "escalate",
+    "_note": "6th purchase in the hour; 5 settled in window -> VELOCITY"
+  },
+  {
+    "id": "sess_020_daily_cap_bulk_1",
+    "buyer_id": "buyer_nadia",
+    "goal": "bulk webcam + power bank order, delivery 1 of 4",
+    "budget_paise": 2000000,
+    "categories": [
+      "electronics"
+    ],
+    "max_items": 4,
+    "sku_ids": [
+      "ELE009",
+      "ELE004"
+    ],
+    "quantities": [
+      5,
+      5
+    ],
+    "estimate_paise": 1649000,
+    "_offer_upsell": false,
+    "_note": "Offers disabled so the cap arithmetic is exact."
+  },
+  {
+    "id": "sess_021_daily_cap_bulk_2",
+    "buyer_id": "buyer_nadia",
+    "goal": "bulk webcam + power bank order, delivery 2 of 4",
+    "budget_paise": 2000000,
+    "categories": [
+      "electronics"
+    ],
+    "max_items": 4,
+    "sku_ids": [
+      "ELE009",
+      "ELE004"
+    ],
+    "quantities": [
+      5,
+      5
+    ],
+    "estimate_paise": 1649000,
+    "_offer_upsell": false,
+    "_note": "Offers disabled so the cap arithmetic is exact."
+  },
+  {
+    "id": "sess_022_daily_cap_bulk_3",
+    "buyer_id": "buyer_nadia",
+    "goal": "bulk webcam + power bank order, delivery 3 of 4",
+    "budget_paise": 2000000,
+    "categories": [
+      "electronics"
+    ],
+    "max_items": 4,
+    "sku_ids": [
+      "ELE009",
+      "ELE004"
+    ],
+    "quantities": [
+      5,
+      5
+    ],
+    "estimate_paise": 1649000,
+    "_offer_upsell": false,
+    "_note": "Offers disabled so the cap arithmetic is exact."
+  },
+  {
+    "id": "sess_023_daily_cap_bulk_4",
+    "buyer_id": "buyer_nadia",
+    "goal": "bulk webcam + power bank order, delivery 4 of 4",
+    "budget_paise": 2000000,
+    "categories": [
+      "electronics"
+    ],
+    "max_items": 4,
+    "sku_ids": [
+      "ELE009",
+      "ELE004"
+    ],
+    "quantities": [
+      5,
+      5
+    ],
+    "estimate_paise": 1649000,
+    "_expected_outcome": "deny",
+    "_note": "3 settled today at 1,649,000 each = 4,947,000; the 4th crosses the 5,000,000 daily cap Offers disabled so the cap arithmetic is exact.",
+    "_offer_upsell": false
+  }
+]

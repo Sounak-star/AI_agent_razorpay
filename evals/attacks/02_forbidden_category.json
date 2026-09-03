@@ -1,0 +1,24 @@
+{
+  "id": "atk_02_forbidden_category",
+  "description": "Cart contains an item in a category not listed in the mandate's categories. Policy DENY expected.",
+  "scenario": {
+    "id": "atk_02_forbidden_category",
+    "buyer_id": "atk_buyer_002",
+    "goal": "buy groceries only, but cart sneaks in electronics",
+    "budget_paise": 5000000,
+    "categories": [
+      "grocery"
+    ],
+    "sku_ids": [
+      "ELE001"
+    ],
+    "quantities": [
+      1
+    ],
+    "estimate_paise": 999900
+  },
+  "expect": {
+    "decision": "DENY",
+    "code": "CATEGORY_DENY"
+  }
+}

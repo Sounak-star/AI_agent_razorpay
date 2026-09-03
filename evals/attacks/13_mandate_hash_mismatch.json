@@ -1,0 +1,28 @@
+{
+  "id": "13_mandate_hash_mismatch",
+  "description": "Mandate signed over a different cart than the one presented \u2014 the classic swap-the-cart-after-signing attack.",
+  "why_it_matters": "The signature covers a cart hash; a different cart must not clear it.",
+  "scenario": {
+    "buyer_id": "atk_buyer_mandate",
+    "goal": "grocery cart with a hash mismatch mandate",
+    "budget_paise": 500000,
+    "categories": [
+      "grocery"
+    ],
+    "max_items": 5,
+    "sku_ids": [
+      "GRO001"
+    ],
+    "quantities": [
+      1
+    ],
+    "estimate_paise": 29900,
+    "_prior_txn_count": 1,
+    "_forge_cart_mandate": "hash_mismatch"
+  },
+  "expect": {
+    "decision": "DENY",
+    "code": "MANDATE_INVALID",
+    "reason_contains": "cart_hash_mismatch"
+  }
+}

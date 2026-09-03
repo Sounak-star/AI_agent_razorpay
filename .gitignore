@@ -1,0 +1,40 @@
+# ── Secrets ───────────────────────────────────────────────────────────────────
+# .env holds live Razorpay, Groq and xAI credentials. Never commit it; .env.example
+# documents every key with placeholder values instead.
+.env
+.env.*
+!.env.example
+
+# Signing keys. The ES256 keypairs are regenerated on first boot by
+# ensure_keypairs(), so there is no reason for a private key to be in history.
+*.pem
+*.key
+keys/
+
+# ── Databases ─────────────────────────────────────────────────────────────────
+# Rebuilt by demo/seed.py. Committing one would ship a hash chain nobody can
+# reproduce, alongside whatever was being tested at the time.
+*.db
+*.db-*
+*.db.backup
+*.sqlite
+*.sqlite3
+backups/
+
+# ── Build output and caches ───────────────────────────────────────────────────
+dashboard/node_modules/
+dashboard/dist/
+dashboard/tsconfig.tsbuildinfo
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# ── Local noise ───────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/

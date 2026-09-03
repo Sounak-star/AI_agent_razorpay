@@ -1,0 +1,25 @@
+{
+  "id": "atk_05_unknown_merchant",
+  "description": "New merchant with no transaction history triggers ESCALATE. Budget is not exceeded but no prior sessions with this merchant exist.",
+  "scenario": {
+    "id": "atk_05_unknown_merchant",
+    "buyer_id": "atk_buyer_005_brand_new",
+    "goal": "first ever purchase",
+    "budget_paise": 5000000,
+    "categories": [
+      "grocery"
+    ],
+    "sku_ids": [
+      "GRO001"
+    ],
+    "quantities": [
+      1
+    ],
+    "estimate_paise": 29900,
+    "_expect_new_merchant": true
+  },
+  "expect": {
+    "decision": "ESCALATE",
+    "code": "FIRST_CONTACT_BUYER"
+  }
+}

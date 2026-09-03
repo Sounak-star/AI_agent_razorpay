@@ -1,0 +1,28 @@
+{
+  "id": "12_mandate_expired",
+  "description": "Cart mandate signed with a negative TTL, so it is already expired when presented.",
+  "why_it_matters": "An expired mandate must not authorise a payment.",
+  "scenario": {
+    "buyer_id": "atk_buyer_mandate",
+    "goal": "grocery cart with a expired mandate",
+    "budget_paise": 500000,
+    "categories": [
+      "grocery"
+    ],
+    "max_items": 5,
+    "sku_ids": [
+      "GRO001"
+    ],
+    "quantities": [
+      1
+    ],
+    "estimate_paise": 29900,
+    "_prior_txn_count": 1,
+    "_forge_cart_mandate": "expired"
+  },
+  "expect": {
+    "decision": "DENY",
+    "code": "MANDATE_INVALID",
+    "reason_contains": "expired"
+  }
+}

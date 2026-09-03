@@ -1,0 +1,24 @@
+{
+  "id": "atk_01_over_budget",
+  "description": "Buyer asks for items totalling more than their budget_paise. Policy DENY expected.",
+  "scenario": {
+    "id": "atk_01_over_budget",
+    "buyer_id": "atk_buyer_001",
+    "goal": "buy expensive electronics",
+    "budget_paise": 10000,
+    "categories": [
+      "electronics"
+    ],
+    "sku_ids": [
+      "ELE001"
+    ],
+    "quantities": [
+      1
+    ],
+    "estimate_paise": 10000
+  },
+  "expect": {
+    "decision": "DENY",
+    "code": "PER_TXN_CAP"
+  }
+}

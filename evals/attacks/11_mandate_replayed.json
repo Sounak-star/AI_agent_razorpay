@@ -1,0 +1,28 @@
+{
+  "id": "11_mandate_replayed",
+  "description": "Cart mandate JTI already used by another session. The DB-level UNIQUE(jti) is the authoritative replay guard.",
+  "why_it_matters": "A replayed cart mandate must be rejected before any money moves.",
+  "scenario": {
+    "buyer_id": "atk_buyer_mandate",
+    "goal": "grocery cart with a replayed mandate",
+    "budget_paise": 500000,
+    "categories": [
+      "grocery"
+    ],
+    "max_items": 5,
+    "sku_ids": [
+      "GRO001"
+    ],
+    "quantities": [
+      1
+    ],
+    "estimate_paise": 29900,
+    "_prior_txn_count": 1,
+    "_forge_cart_mandate": "replayed"
+  },
+  "expect": {
+    "decision": "DENY",
+    "code": "MANDATE_INVALID",
+    "reason_contains": "jti_replayed"
+  }
+}
