@@ -26,7 +26,7 @@ export function ViewToggle({
               ? 'Plain-English account of the selected session'
               : 'Raw hash-chained ledger with per-entry hash re-derivation'
           }
-          className={`px-2 py-[1px] text-[10px] font-semibold tracking-[0.12em] transition-colors ${
+          className={`px-2 py-[1px] t-meta font-semibold tracking-[0.12em] transition-colors ${
             view === v
               ? 'bg-accent text-ink-950'
               : 'text-ink-400 hover:text-ink-100'

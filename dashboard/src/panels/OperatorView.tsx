@@ -48,7 +48,7 @@ function CartTable({ detail }: { detail: NarrativeDetail }) {
 
   return (
     <div className="mt-1.5 mb-1 border border-ink-700">
-      <div className="grid grid-cols-[62px_1fr_28px_74px_78px] gap-1 border-b border-ink-700 bg-ink-850 px-1.5 py-0.5 text-[9px] font-semibold tracking-[0.08em] text-ink-400 uppercase">
+      <div className="grid grid-cols-[62px_1fr_28px_74px_78px] gap-1 border-b border-ink-700 bg-ink-850 px-1.5 py-0.5 t-meta font-semibold tracking-[0.08em] text-ink-400 uppercase">
         <span>sku</span>
         <span>name</span>
         <span className="text-right">qty</span>
@@ -59,7 +59,7 @@ function CartTable({ detail }: { detail: NarrativeDetail }) {
       {items.map((item) => (
         <div
           key={item.sku_id}
-          className="grid grid-cols-[62px_1fr_28px_74px_78px] gap-1 border-b border-ink-700/60 px-1.5 py-0.5 text-[10px] last:border-b-0"
+          className="grid grid-cols-[62px_1fr_28px_74px_78px] gap-1 border-b border-ink-700/60 px-1.5 py-0.5 t-meta last:border-b-0"
         >
           <span className="tabular truncate text-ink-400">{item.sku_id}</span>
           <span className="truncate text-ink-200" title={item.name}>
@@ -77,7 +77,7 @@ function CartTable({ detail }: { detail: NarrativeDetail }) {
         </div>
       ))}
 
-      <div className="grid grid-cols-[62px_1fr_28px_74px_78px] gap-1 border-t border-ink-600 bg-ink-850 px-1.5 py-0.5 text-[10px]">
+      <div className="grid grid-cols-[62px_1fr_28px_74px_78px] gap-1 border-t border-ink-600 bg-ink-850 px-1.5 py-0.5 t-meta">
         <span />
         <span />
         <span />
@@ -102,7 +102,7 @@ function ConsideredList({ detail }: { detail: NarrativeDetail }) {
     <div className="mt-1 mb-1">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="border border-ink-700 px-1.5 py-0.5 text-[10px] text-ink-400 hover:border-accent/50 hover:text-accent"
+        className="border border-ink-700 px-1.5 py-0.5 t-meta text-ink-400 hover:border-accent/50 hover:text-accent"
       >
         {open ? '▾' : '▸'} {notChosen.length} not chosen
       </button>
@@ -111,7 +111,7 @@ function ConsideredList({ detail }: { detail: NarrativeDetail }) {
           {notChosen.map((sku) => (
             <span
               key={sku}
-              className="tabular border border-ink-700 px-1 text-[10px] text-ink-400"
+              className="tabular border border-ink-700 px-1 t-meta text-ink-400"
             >
               {sku}
             </span>
@@ -174,7 +174,7 @@ export function OperatorView({
           <span className="text-ink-400">nothing has been recorded to describe</span>
         </PanelMessage>
       ) : (
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
           <ol className="flex flex-col">
             {narrative.lines.map((line, i) => (
               <li
@@ -184,17 +184,17 @@ export function OperatorView({
                 {/* Spine: a vertical rule joining the beats of the story. */}
                 <span className="relative flex w-3 shrink-0 justify-center self-stretch">
                   {i < narrative.lines.length - 1 ? (
-                    <span className="absolute top-3 bottom-[-5px] w-px bg-ink-700" />
+                    <span className="absolute top-4 bottom-[-6px] w-px bg-ink-700" />
                   ) : null}
                   <span
-                    className={`relative z-10 mt-[6px] size-1.5 shrink-0 rounded-full ${
+                    className={`relative z-10 mt-[9px] size-1.5 shrink-0 rounded-full ${
                       MARKER[line.tone] ?? MARKER.neutral
                     }`}
                   />
                 </span>
 
                 <span
-                  className={`min-w-0 flex-1 text-[13px] leading-[19px] ${
+                  className={`t-narrative min-w-0 flex-1 ${
                     TONE[line.tone] ?? TONE.neutral
                   }`}
                 >
@@ -210,7 +210,7 @@ export function OperatorView({
                 <button
                   onClick={() => onJumpToSeq(narrative.session_id, line.seq)}
                   title={`Show ledger entry ${line.seq} in FORENSIC view — the record this line was read from`}
-                  className="tabular mt-[2px] shrink-0 border border-transparent px-1 text-[10px] text-ink-600 hover:border-accent/50 hover:text-accent"
+                  className="t-transition t-focus tabular mt-[3px] shrink-0 border border-transparent px-2 py-0.5 t-meta text-ink-400 hover:border-accent/50 hover:text-accent"
                 >
                   seq {line.seq}
                 </button>
@@ -218,7 +218,7 @@ export function OperatorView({
             ))}
           </ol>
 
-          <p className="mt-3 border-t border-ink-700 pt-2 text-[10px] leading-snug text-ink-400">
+          <p className="mt-3 border-t border-ink-700 pt-2 t-meta leading-snug text-ink-400">
             Written from ledger payloads by a template, not by a language model.
             Click any seq to see the signed entry it was read from.
           </p>

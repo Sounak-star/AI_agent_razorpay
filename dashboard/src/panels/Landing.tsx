@@ -31,13 +31,13 @@ function Stat({
       className="flex min-w-0 flex-col gap-0.5 border border-ink-700 bg-ink-900 px-3 py-2"
     >
       <span
-        className={`tabular truncate text-[20px] leading-[22px] font-semibold ${
+        className={`tabular truncate t-header font-semibold ${
           tone === 'good' ? 'text-state-allow' : 'text-ink-050'
         }`}
       >
         {value}
       </span>
-      <span className="truncate text-[9px] leading-[11px] tracking-[0.12em] text-ink-400 uppercase">
+      <span className="truncate t-meta tracking-[0.12em] text-ink-400 uppercase">
         {label}
       </span>
     </div>
@@ -69,10 +69,10 @@ export function Landing({
   return (
     <div className="flex min-h-0 flex-1 flex-col justify-center gap-5 overflow-y-auto px-8 py-4">
       <div className="flex flex-col gap-2">
-        <h1 className="text-[19px] leading-[24px] font-bold tracking-[0.01em] text-ink-050">
+        <h1 className="t-header font-bold tracking-[0.01em] text-ink-050">
           Every money action explainable, bounded and gated.
         </h1>
-        <p className="max-w-[62ch] text-[11px] leading-[17px] text-ink-300">
+        <p className="max-w-[62ch] t-meta text-ink-300">
           An AI agent shops on Razorpay test-mode APIs. A deterministic policy
           engine, not the model, decides whether money moves. Every decision is
           hash-chained and verifiable.
@@ -120,7 +120,7 @@ export function Landing({
         />
       </div>
 
-      <p className="text-[11px] leading-[17px] text-ink-300">
+      <p className="t-meta text-ink-300">
         Select a session to see its full story, with a link to the proof for
         every line.
       </p>

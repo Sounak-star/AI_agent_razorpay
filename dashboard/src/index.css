@@ -6,7 +6,7 @@
   The palette is deliberately small. Chrome is greyscale; colour carries exactly
   one meaning, which is state. If something on screen is coloured, it is telling
   you the status of a session, a verdict, or the chain. Nothing is coloured for
-  decoration.
+  decoration — panel headers, labels and captions are grey.
 */
 @theme {
   --font-mono:
@@ -18,21 +18,50 @@
   --color-ink-900: #0d0d10; /* panel */
   --color-ink-850: #111114; /* panel header / table head */
   --color-ink-800: #16161a; /* row hover */
-  --color-ink-700: #1e1e24; /* border */
-  --color-ink-600: #2a2a32; /* border, emphasised */
-  --color-ink-400: #6b6b76; /* muted text */
-  --color-ink-300: #8d8d99; /* secondary text */
-  --color-ink-100: #d7d7de; /* primary text */
-  --color-ink-050: #f2f2f5; /* headline text */
+  --color-ink-700: #22222a; /* border */
+  --color-ink-600: #2f2f39; /* border, emphasised */
 
-  /* State — the only colours in the system */
-  --color-state-allow: #3fb950;
-  --color-state-deny: #f85149;
-  --color-state-escalate: #d29922;
+  /*
+    Three greys for text, and only three.
+
+    ink-400 was #6b6b76, which is 3.69:1 on the panel — under the 4.5:1 floor
+    and the single most-used text colour on the screen. Every label, caption and
+    provenance line was below the readable threshold, which is survivable on a
+    laptop and not survivable on a projector. It is now 5.69:1.
+  */
+  --color-ink-400: #8a8a96; /* muted: labels, captions, provenance */
+  --color-ink-300: #adadb8; /* secondary: supporting values */
+  --color-ink-100: #d7d7de; /* primary: data */
+  --color-ink-050: #f2f2f5; /* headline */
+
+  /*
+    State — three colours, one meaning each. Nothing else in the interface is
+    allowed to be green, amber or red.
+  */
+  --color-state-allow: #3fb950;    /* ALLOW      7.64:1 */
+  --color-state-escalate: #d29922; /* ESCALATE   7.69:1 */
+  --color-state-deny: #f85149;     /* DENY       5.79:1 */
+
+  /*
+    Blue is provenance, and nothing else: REPLAYED badges and fixture-backed
+    evidence. It is deliberately outside the state trio so it can never be read
+    as a verdict.
+  */
   --color-state-refund: #58a6ff;
+  --color-provenance: #58a6ff;
 
-  /* Single interaction accent: selection, focus, active filters */
+  /*
+    Interaction only: selection, focus, active filters. Not a state, so it never
+    appears on a verdict, a chip or a label.
+  */
   --color-accent: #e8913a;
+
+  /* 8px spacing scale. Nothing between steps. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
 }
 
 html,
@@ -46,12 +75,44 @@ body {
   background: var(--color-ink-950);
   color: var(--color-ink-100);
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.45;
   -webkit-font-smoothing: antialiased;
   /* A control plane is a fixed-frame instrument: the page itself never
      scrolls, individual panels do. */
   overflow: hidden;
+}
+
+/*
+  The type scale. Five steps, and nothing outside them.
+
+  Declared as utilities rather than left to arbitrary values at each call site,
+  because the previous screen carried ten different sizes between 8px and 44px —
+  8, 9, 10, 11, 12, 13, 18, 19, 20, 44 — which is not a scale, it is a drift.
+  A named step is harder to slip past than `text-[9px]`.
+*/
+.t-meta {
+  font-size: 11px;
+  line-height: 16px;
+}
+.t-body {
+  font-size: 13px;
+  line-height: 18px;
+}
+.t-narrative {
+  font-size: 15px;
+  /* Prose, not data: it wants air between lines and a measure short enough to
+     track back to the start of the next one. */
+  line-height: 1.7;
+  max-width: 68ch;
+}
+.t-header {
+  font-size: 20px;
+  line-height: 24px;
+}
+.t-headline {
+  font-size: 42px;
+  line-height: 1;
 }
 
 /* Thin, low-contrast scrollbars — panels scroll a lot and the bars should not
@@ -80,13 +141,39 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/*
+  Motion is for state that changed under the pointer, and nothing else.
+
+  150ms on hover and selection only. No entrance animations: rows arriving on a
+  2s poll that fade or slide in would make a settled screen look busy and an
+  operator look twice at data that has not changed.
+*/
+.t-transition {
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+
+/*
+  One focus ring, everywhere, and it is never removed.
+
+  Keyboard focus has to survive a projector at the back of a room, so it is an
+  outline rather than a tint: an offset ring reads at a distance where a
+  background change does not.
+*/
+.t-focus:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
 @keyframes tollgate-pulse {
   0%,
   100% {
     opacity: 1;
   }
   50% {
-    opacity: 0.35;
+    opacity: 0.4;
   }
 }
 .pulse {

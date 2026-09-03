@@ -294,14 +294,14 @@ function Header({
   return (
     <header className="flex h-5 shrink-0 items-center justify-between px-1">
       <div className="flex items-baseline gap-2">
-        <span className="text-[13px] font-bold tracking-[0.22em] text-ink-050">
+        <span className="t-body font-bold tracking-[0.22em] text-ink-050">
           TOLLGATE
         </span>
-        <span className="text-[10px] tracking-[0.12em] text-ink-400 uppercase">
+        <span className="t-meta tracking-[0.12em] text-ink-400 uppercase">
           governed agentic-commerce rail
         </span>
       </div>
-      <div className="flex items-center gap-2 text-[10px] text-ink-400">
+      <div className="flex items-center gap-2 t-meta text-ink-400">
         <ViewToggle view={view} onChange={onViewChange} />
         {linkDown ? (
           <span className="text-state-deny">API LINK DOWN — {linkDown}</span>

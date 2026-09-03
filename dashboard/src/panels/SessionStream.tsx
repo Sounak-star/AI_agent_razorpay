@@ -52,7 +52,7 @@ export function SessionStream({
           {selectedId ? (
             <button
               onClick={() => onSelect(null)}
-              className="border border-accent/50 px-1 text-[9px] text-accent hover:bg-accent/10"
+              className="border border-accent/50 px-1 t-meta text-accent hover:bg-accent/10"
             >
               CLEAR FILTER
             </button>
@@ -88,16 +88,19 @@ export function SessionStream({
                 title={`${s.session_id}\nbuyer: ${s.buyer_id}\nbudget: ${formatPaise(
                   s.budget_paise,
                 )}\nevents: ${s.event_count}`}
-                className={`block w-full border-b border-ink-700 px-2 py-1.5 text-left transition-colors ${
+                className={`t-transition t-focus block w-full border-b border-ink-700 px-4 py-2 text-left ${
                   selected
-                    ? 'bg-accent/10 border-l-2 border-l-accent pl-1.5'
-                    : 'border-l-2 border-l-transparent pl-1.5 hover:bg-ink-800'
+                    // The accent is the left edge, not a wash across the card.
+                    // A filled row competed with the status chip inside it and
+                    // tinted every value it contained.
+                    ? 'border-l-2 border-l-accent pl-[14px] bg-ink-800/40'
+                    : 'border-l-2 border-l-transparent pl-[14px] hover:bg-ink-800'
                 }`}
               >
                 <div className="flex items-center justify-between gap-1">
                   <span
-                    className={`tabular text-[11px] ${
-                      selected ? 'text-accent' : 'text-ink-300'
+                    className={`tabular t-body ${
+                      selected ? 'text-ink-050' : 'text-ink-300'
                     }`}
                   >
                     {shortId(s.session_id)}
@@ -114,17 +117,17 @@ export function SessionStream({
                   />
                 </div>
 
-                <div className="mt-0.5 truncate text-[11px] text-ink-100">
+                <div className="mt-2 truncate t-body text-ink-100">
                   {s.goal ?? <span className="text-ink-400">(no goal)</span>}
                 </div>
 
-                <div className="mt-0.5 flex items-center justify-between gap-1 text-[10px] text-ink-400">
+                <div className="mt-2 flex items-center justify-between gap-2 t-meta text-ink-400">
                   <span className="truncate">{s.buyer_id}</span>
                   <span className="flex shrink-0 items-center gap-1">
                     {s.offer && OFFER_CHIP[s.offer] ? (
                       <span
                         title={`Upsell ${s.offer}`}
-                        className={`border px-1 text-[9px] leading-[13px] font-semibold ${
+                        className={`rounded-[2px] border px-2 py-[2px] t-meta font-semibold ${
                           OFFER_CHIP[s.offer]!.className
                         }`}
                       >

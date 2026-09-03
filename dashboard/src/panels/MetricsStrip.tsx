@@ -42,9 +42,9 @@ function Cell({
   return (
     <div
       title={title}
-      className={`flex min-w-0 flex-col justify-center gap-0.5 overflow-hidden border-r border-ink-700 px-3 py-1 ${className}`}
+      className={`flex min-w-0 flex-col justify-center gap-1 overflow-hidden border-r border-ink-700 px-4 py-2 ${className}`}
     >
-      <div className="truncate text-[9px] leading-[11px] font-semibold tracking-[0.14em] text-ink-400 uppercase">
+      <div className="truncate t-meta font-semibold tracking-[0.14em] text-ink-400 uppercase">
         {label}
       </div>
       {children}
@@ -55,7 +55,7 @@ function Cell({
 /** The sub-line under a figure: what it was measured over. Never wraps. */
 function Provenance({ children }: { children: ReactNode }) {
   return (
-    <div className="truncate text-[9px] leading-[11px] whitespace-nowrap text-ink-400">
+    <div className="truncate t-meta whitespace-nowrap text-ink-400">
       {children}
     </div>
   )
@@ -80,14 +80,14 @@ function Headline({ metrics }: { metrics: Metrics }) {
 
   return (
     <div
-      className={`flex h-[62px] shrink-0 items-center gap-4 border px-4 ${
+      className={`flex h-[72px] shrink-0 items-center gap-4 border px-4 ${
         breached
           ? 'border-state-deny bg-state-deny/15'
           : 'border-ink-700 bg-ink-900'
       }`}
     >
       <span
-        className={`tabular shrink-0 text-[44px] leading-none font-bold ${
+        className={`tabular shrink-0 t-headline leading-none font-bold ${
           breached ? 'text-state-deny' : 'text-state-allow'
         }`}
       >
@@ -96,14 +96,14 @@ function Headline({ metrics }: { metrics: Metrics }) {
 
       <div className="min-w-0 flex-1">
         <div
-          className={`text-[12px] font-bold tracking-[0.14em] uppercase ${
+          className={`t-body font-bold tracking-[0.14em] uppercase ${
             breached ? 'text-state-deny' : 'text-ink-050'
           }`}
         >
           Money moved without authorisation
         </div>
         <div
-          className={`truncate text-[10px] ${
+          className={`truncate t-meta ${
             breached ? 'text-state-deny' : 'text-ink-300'
           }`}
         >
@@ -115,12 +115,12 @@ function Headline({ metrics }: { metrics: Metrics }) {
       </div>
 
       {breached ? (
-        <span className="shrink-0 border border-state-deny bg-state-deny/20 px-2 py-1 text-[11px] font-bold tracking-[0.1em] text-state-deny">
+        <span className="shrink-0 border border-state-deny bg-state-deny/20 px-2 py-1 t-meta font-bold tracking-[0.1em] text-state-deny">
           BREACH · SEQ {u.offending_entries.map((e) => e.seq).join(', ')}
         </span>
       ) : (
         <span
-          className="shrink-0 text-right text-[9px] leading-tight text-ink-400"
+          className="shrink-0 text-right t-meta leading-tight text-ink-400"
           title="Every money-movement entry was preceded, in its own session, by an ALLOW verdict or an explicit human approval."
         >
           every movement preceded by an
@@ -142,7 +142,7 @@ function HeadlineExplainer({ metrics }: { metrics: Metrics }) {
   const sessions = metrics.sessions.total
   return (
     <div className="shrink-0 border border-t-0 border-ink-700 bg-ink-900 px-4 py-1">
-      <p className="truncate text-[11px] leading-tight text-ink-300">
+      <p className="truncate t-meta leading-tight text-ink-300">
         An AI agent shopped {sessions} time{sessions === 1 ? '' : 's'}. Every rupee it
         moved was pre-authorised by a signed spending limit and cleared by a rule
         engine. Nothing moved without one.
@@ -164,7 +164,7 @@ export function MetricsStrip({
 }) {
   if (!metrics) {
     return (
-      <div className="flex h-[146px] shrink-0 items-center border border-ink-700 bg-ink-900 px-3 text-[11px] text-ink-400">
+      <div className="flex h-[164px] shrink-0 items-center border border-ink-700 bg-ink-900 px-3 t-meta text-ink-400">
         {error ? (
           <span className="text-state-deny">metrics unavailable — {error}</span>
         ) : (
@@ -192,10 +192,10 @@ export function MetricsStrip({
           a business figure. Nothing is deleted; it moves. */}
       {view === 'forensic' ? (
         <div className="mt-1.5 flex items-center gap-2 px-1">
-          <span className="text-[9px] font-semibold tracking-[0.16em] text-ink-400 uppercase">
+          <span className="t-meta font-semibold tracking-[0.16em] text-ink-400 uppercase">
             Run telemetry
           </span>
-          <span className="text-[9px] text-ink-400">
+          <span className="t-meta text-ink-400">
             describes this run, not the merchant&apos;s business
           </span>
           <span className="h-px flex-1 bg-ink-700" />
@@ -203,7 +203,7 @@ export function MetricsStrip({
       ) : null}
 
       <div
-        className={`mt-1.5 grid h-[54px] shrink-0 border border-ink-700 bg-ink-900 ${
+        className={`mt-1.5 grid h-[62px] shrink-0 border border-ink-700 bg-ink-900 ${
           view === 'operator'
             ? 'grid-cols-[132px_minmax(196px,1fr)_minmax(210px,240px)]'
             : 'grid-cols-[132px_minmax(196px,1fr)_196px_178px_150px]'
@@ -212,10 +212,10 @@ export function MetricsStrip({
         {/* ── Sessions ── */}
         <Cell label="Sessions run" title="All sessions in the database">
           <div className="flex items-baseline gap-1.5">
-            <span className="tabular text-[18px] leading-[18px] font-semibold text-ink-050">
+            <span className="tabular t-header font-semibold text-ink-050">
               {metrics.sessions.total}
             </span>
-            <span className="truncate text-[9px] text-ink-400">
+            <span className="truncate t-meta text-ink-400">
               {metrics.sessions.active} live
               {metrics.sessions.stale > 0 ? (
                 <span className="text-state-escalate"> · {metrics.sessions.stale} stale</span>
@@ -241,7 +241,7 @@ export function MetricsStrip({
           title="Each session counted once, by its most recent POLICY_EVALUATED verdict"
         >
           {policy.total === 0 ? (
-            <div className="text-[11px] text-ink-400">no verdicts recorded</div>
+            <div className="t-meta text-ink-400">no verdicts recorded</div>
           ) : (
             <>
               <div className="flex h-2.5 w-full shrink-0 overflow-hidden border border-ink-700">
@@ -260,7 +260,7 @@ export function MetricsStrip({
                   )
                 })}
               </div>
-              <div className="flex items-center gap-2.5 overflow-hidden text-[9px] leading-[11px] whitespace-nowrap">
+              <div className="flex items-center gap-2.5 overflow-hidden t-meta whitespace-nowrap">
                 {SEGMENTS.map((s) => (
                   <span key={s.key} className={`${s.text} tabular`}>
                     {s.label} {policy[s.key]}
@@ -290,11 +290,11 @@ export function MetricsStrip({
             }
           >
             {upsell.offered === 0 ? (
-              <div className="text-[11px] leading-[18px] text-ink-400">
+              <div className="t-meta text-ink-400">
                 no offers made
               </div>
             ) : (
-              <div className="truncate text-[13px] leading-[18px] font-semibold text-ink-050">
+              <div className="truncate t-body font-semibold text-ink-050">
                 Offers accepted{' '}
                 <span className="tabular">
                   {upsell.accepted} of {upsell.offered}
@@ -335,10 +335,10 @@ export function MetricsStrip({
               Wall clock sits beside it rather than under it, so the cell keeps
               to three lines and neither figure is hidden. */}
           <div className="flex items-baseline gap-1.5">
-            <span className="tabular text-[18px] leading-[18px] font-semibold text-ink-050">
+            <span className="tabular t-header font-semibold text-ink-050">
               {formatMs(latency.engine_mean_ms)}
             </span>
-            <span className="truncate text-[9px] text-ink-400">engine</span>
+            <span className="truncate t-meta text-ink-400">engine</span>
           </div>
           <Provenance>
             {latency.samples === 0 ? (
@@ -387,7 +387,7 @@ export function MetricsStrip({
                 'as reported by the provider. Cost needs LLM_PRICE_*_USD_PER_MTOK set.'
           }
         >
-          <div className="tabular text-[18px] leading-[18px] font-semibold text-ink-050">
+          <div className="tabular t-header font-semibold text-ink-050">
             {/* Cost when a rate is configured; otherwise the real measured
                 usage, which exists either way. Never a fabricated price. */}
             {cost.samples > 0
@@ -418,7 +418,7 @@ export function MetricsStrip({
 
         {/* Ledger size. A property of the run, not of the merchant's trade. */}
         <Cell label="Ledger" className="border-r-0" title="Hash-chained append-only entries">
-          <div className="tabular text-[18px] leading-[18px] font-semibold text-ink-050">
+          <div className="tabular t-header font-semibold text-ink-050">
             {metrics.ledger.total_events.toLocaleString()}
           </div>
           <Provenance>entries · {metrics.sessions.total} sessions</Provenance>

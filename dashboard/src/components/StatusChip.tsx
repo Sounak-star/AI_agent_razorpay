@@ -63,7 +63,7 @@ export function StatusChip({ status }: { status: SessionStatus }) {
   return (
     <span
       title={`session status: ${status}`}
-      className={`inline-block shrink-0 border px-1 text-[9px] leading-[14px] font-semibold tracking-[0.08em] ${style.className}`}
+      className={`inline-block shrink-0 rounded-[2px] border px-2 py-[2px] t-meta font-semibold tracking-[0.08em] ${style.className}`}
     >
       {style.label}
     </span>

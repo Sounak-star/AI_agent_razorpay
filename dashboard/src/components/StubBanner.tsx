@@ -17,10 +17,10 @@ export function StubBanner({ health }: { health: Health | null }) {
 
   return (
     <div className="flex shrink-0 items-center gap-2 border border-state-escalate/60 bg-state-escalate/15 px-2 py-1">
-      <span className="shrink-0 border border-state-escalate bg-state-escalate px-1 text-[9px] font-bold tracking-[0.1em] text-ink-950">
+      <span className="shrink-0 border border-state-escalate bg-state-escalate px-1 t-meta font-bold tracking-[0.1em] text-ink-950">
         STUB MODE
       </span>
-      <span className="truncate text-[10px] text-state-escalate">
+      <span className="truncate t-meta text-state-escalate">
         Payment legs replayed from recorded Razorpay IDs — no live payment API
         call is made.{' '}
         {/* Named explicitly: "stub mode" does not mean no model ran. The

@@ -24,22 +24,22 @@ export function Panel({ title, caption, aside, children, className = '' }: Panel
     <section
       className={`flex min-h-0 min-w-0 flex-col border border-ink-700 bg-ink-900 ${className}`}
     >
-      <header className="shrink-0 border-b border-ink-700 bg-ink-850 px-2 py-1">
+      <header className="shrink-0 border-b border-ink-700 bg-ink-850 px-4 pt-2 pb-2">
         <div className="flex items-center justify-between gap-2">
-          <h2 className="shrink-0 text-[10px] font-semibold tracking-[0.14em] text-ink-300 uppercase">
+          <h2 className="shrink-0 t-body font-semibold tracking-[0.12em] text-ink-100 uppercase">
             {title}
           </h2>
           {aside ? (
-            <div className="flex items-center gap-2 text-[10px] text-ink-400">{aside}</div>
+            <div className="flex items-center gap-2 t-meta text-ink-400">{aside}</div>
           ) : null}
         </div>
         {caption ? (
-          <p className="truncate text-[9px] leading-tight text-ink-400" title={caption}>
+          <p className="mt-1 truncate t-meta text-ink-400" title={caption}>
             {caption}
           </p>
         ) : null}
       </header>
-      <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+      <div className="flex min-h-0 flex-1 flex-col pt-2">{children}</div>
     </section>
   )
 }
@@ -54,7 +54,7 @@ export function PanelMessage({
 }) {
   return (
     <div
-      className={`flex flex-1 items-center justify-center px-4 text-center text-[11px] ${
+      className={`flex flex-1 items-center justify-center px-4 text-center t-meta ${
         tone === 'error' ? 'text-state-deny' : 'text-ink-400'
       }`}
     >

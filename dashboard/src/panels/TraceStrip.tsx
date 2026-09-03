@@ -142,7 +142,7 @@ export function TraceStrip({
 
   return (
     <div className="flex shrink-0 items-center gap-0 border-b border-ink-700 bg-ink-850 px-2 py-1.5">
-      <span className="mr-2 shrink-0 text-[9px] font-semibold tracking-[0.12em] text-ink-400 uppercase">
+      <span className="mr-2 shrink-0 t-meta font-semibold tracking-[0.12em] text-ink-400 uppercase">
         Trace
       </span>
 
@@ -167,7 +167,7 @@ export function TraceStrip({
                 }`}
               />
               <span
-                className={`truncate text-[8px] tracking-[0.06em] ${TEXT[state]} ${
+                className={`truncate t-meta tracking-[0.06em] ${TEXT[state]} ${
                   step.gate ? 'font-bold' : ''
                 }`}
               >

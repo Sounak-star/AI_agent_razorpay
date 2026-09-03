@@ -39,7 +39,7 @@ function ChainBadge({
 }) {
   if (!verify) {
     return (
-      <div className="flex h-7 shrink-0 items-center border-b border-ink-700 bg-ink-850 px-2 text-[11px] text-ink-400">
+      <div className="flex h-7 shrink-0 items-center border-b border-ink-700 bg-ink-850 px-2 t-meta text-ink-400">
         <span className={error ? 'text-state-deny' : 'pulse'}>
           {error ? `CHAIN STATUS UNAVAILABLE — ${error}` : 'VERIFYING CHAIN…'}
         </span>
@@ -51,10 +51,10 @@ function ChainBadge({
     return (
       <div className="flex h-7 shrink-0 items-center gap-2 border-b border-state-deny/50 bg-state-deny/15 px-2">
         <span className="size-2 shrink-0 bg-state-deny" />
-        <span className="text-[12px] font-bold tracking-[0.08em] text-state-deny">
+        <span className="t-body font-bold tracking-[0.08em] text-state-deny">
           CHAIN BROKEN AT SEQ {verify.broken_at_seq}
         </span>
-        <span className="truncate text-[10px] text-state-deny/80">
+        <span className="truncate t-meta text-state-deny/80">
           · global chain · entries after this point are not trustworthy
         </span>
       </div>
@@ -64,11 +64,11 @@ function ChainBadge({
   return (
     <div className="flex h-7 shrink-0 items-center gap-2 border-b border-state-allow/30 bg-state-allow/10 px-2">
       <span className="size-2 shrink-0 bg-state-allow" />
-      <span className="text-[12px] font-bold tracking-[0.08em] text-state-allow">
+      <span className="t-body font-bold tracking-[0.08em] text-state-allow">
         CHAIN VERIFIED · {verify.entries} ENTRIES
       </span>
       {/* Scope label: this counts the entire ledger, not the current filter. */}
-      <span className="truncate text-[10px] text-ink-400">
+      <span className="truncate t-meta text-ink-400">
         · global · all sessions · every hash re-derived server-side
       </span>
     </div>
@@ -117,7 +117,7 @@ function ProvenanceTag({ kind }: { kind: Exclude<Provenance, null> }) {
     return (
       <span
         title="Identifiers replayed from a recorded real Razorpay capture (evals/fixtures/razorpay_capture.json). No live API call was made in this run."
-        className="ml-1 shrink-0 border border-state-refund/50 bg-state-refund/10 px-1 text-[9px] font-semibold tracking-[0.06em] text-state-refund"
+        className="ml-1 shrink-0 border border-state-refund/50 bg-state-refund/10 px-1 t-meta font-semibold tracking-[0.06em] text-state-refund"
       >
         REPLAYED
       </span>
@@ -126,7 +126,7 @@ function ProvenanceTag({ kind }: { kind: Exclude<Provenance, null> }) {
   return (
     <span
       title="Identifiers were generated locally. No real Razorpay payment exists behind this entry, and none has ever been recorded."
-      className="ml-1 shrink-0 border border-state-escalate/50 bg-state-escalate/10 px-1 text-[9px] font-semibold tracking-[0.06em] text-state-escalate"
+      className="ml-1 shrink-0 border border-state-escalate/50 bg-state-escalate/10 px-1 t-meta font-semibold tracking-[0.06em] text-state-escalate"
     >
       SYNTHETIC
     </span>
@@ -155,7 +155,7 @@ interface Props {
 // checked in the expanded row, where the hash is actually re-derived. Dropping
 // it returns the width to event_type and reason_code, which are read.
 const COLUMNS =
-  'grid grid-cols-[12px_34px_82px_minmax(190px,1fr)_150px_72px_58px] gap-1.5'
+  'grid grid-cols-[12px_38px_88px_minmax(170px,1fr)_146px_74px_60px] gap-2'
 
 export function Ledger({
   ledger,
@@ -199,14 +199,14 @@ export function Ledger({
           <button
             disabled={!canPrev}
             onClick={() => onOffsetChange(Math.max(0, offset - PAGE_SIZE))}
-            className="border border-ink-600 px-1.5 text-[10px] enabled:hover:border-accent enabled:hover:text-accent disabled:opacity-30"
+            className="border border-ink-600 px-1.5 t-meta enabled:hover:border-accent enabled:hover:text-accent disabled:opacity-30"
           >
             PREV
           </button>
           <button
             disabled={!canNext}
             onClick={() => onOffsetChange(offset + PAGE_SIZE)}
-            className="border border-ink-600 px-1.5 text-[10px] enabled:hover:border-accent enabled:hover:text-accent disabled:opacity-30"
+            className="border border-ink-600 px-1.5 t-meta enabled:hover:border-accent enabled:hover:text-accent disabled:opacity-30"
           >
             NEXT
           </button>
@@ -221,7 +221,7 @@ export function Ledger({
 
       {/* Column heads */}
       <div
-        className={`${COLUMNS} shrink-0 border-b border-ink-700 bg-ink-850 px-2 py-1 text-[9px] font-semibold tracking-[0.1em] text-ink-400 uppercase`}
+        className={`${COLUMNS} shrink-0 items-center border-b border-ink-700 bg-ink-850 px-4 py-2 t-meta font-semibold tracking-[0.1em] text-ink-400 uppercase`}
       >
         <span />
         <span className="text-right">seq</span>
@@ -268,7 +268,7 @@ export function Ledger({
                     }
                   }}
                   title="Click to expand: full payload, hash inputs, and an independent re-derivation"
-                  className={`${COLUMNS} cursor-pointer border-b border-ink-700/60 px-2 py-[3px] text-[11px] ${
+                  className={`${COLUMNS} t-transition t-focus min-h-[34px] cursor-pointer items-center border-b border-ink-700/60 px-4 py-1 t-body ${
                     isBreak
                       ? 'border-state-deny/50 bg-state-deny/20'
                       : expanded

@@ -68,11 +68,11 @@ function DiffTable({ diff, label }: { diff: DiffRow[]; label?: string }) {
   return (
     <div className="mt-1.5 border border-ink-700">
       {label ? (
-        <div className="border-b border-ink-700 bg-ink-850 px-1.5 py-0.5 text-[9px] tracking-[0.08em] text-ink-500 uppercase">
+        <div className="border-b border-ink-700 bg-ink-850 px-1.5 py-0.5 t-meta tracking-[0.08em] text-ink-500 uppercase">
           {label}
         </div>
       ) : null}
-      <div className="grid grid-cols-[76px_1fr_1fr] gap-1 border-b border-ink-700 bg-ink-850 px-1.5 py-0.5 text-[9px] font-semibold tracking-[0.08em] text-ink-400 uppercase">
+      <div className="grid grid-cols-[76px_1fr_1fr] gap-1 border-b border-ink-700 bg-ink-850 px-1.5 py-0.5 t-meta font-semibold tracking-[0.08em] text-ink-400 uppercase">
         <span>field</span>
         <span>authorised</span>
         <span>proposed</span>
@@ -97,7 +97,7 @@ function DiffTable({ diff, label }: { diff: DiffRow[]; label?: string }) {
           <div
             key={row.field}
             title={row.note ?? undefined}
-            className={`grid grid-cols-[76px_1fr_1fr] gap-1 border-b border-ink-700/60 px-1.5 py-0.5 text-[10px] last:border-b-0 ${tone}`}
+            className={`grid grid-cols-[76px_1fr_1fr] gap-1 border-b border-ink-700/60 px-1.5 py-0.5 t-meta last:border-b-0 ${tone}`}
           >
             <span className="flex min-w-0 flex-col">
               <span
@@ -114,12 +114,12 @@ function DiffTable({ diff, label }: { diff: DiffRow[]; label?: string }) {
               {row.triggered ? (
                 <span
                   title="The rule that fired examined this field"
-                  className="w-fit bg-state-escalate px-0.5 text-[8px] leading-[11px] font-bold tracking-[0.08em] text-ink-950"
+                  className="w-fit bg-state-escalate px-0.5 t-meta font-bold tracking-[0.08em] text-ink-950"
                 >
                   TRIGGER
                 </span>
               ) : row.differs ? (
-                <span className="text-[8px] leading-[11px] text-ink-600">changed</span>
+                <span className="t-meta text-ink-600">changed</span>
               ) : null}
             </span>
 
@@ -162,13 +162,13 @@ function DiffTable({ diff, label }: { diff: DiffRow[]; label?: string }) {
 function EvidenceTable({ evidence }: { evidence: Evidence }) {
   return (
     <div className="mt-1.5 border border-ink-700">
-      <div className="border-b border-ink-700 bg-ink-850 px-1.5 py-0.5 text-[9px] font-semibold tracking-[0.08em] text-ink-400 uppercase">
+      <div className="border-b border-ink-700 bg-ink-850 px-1.5 py-0.5 t-meta font-semibold tracking-[0.08em] text-ink-400 uppercase">
         Evidence
       </div>
       {evidence.rows.map((row) => (
         <div
           key={row.label}
-          className={`grid grid-cols-[124px_1fr] gap-1 border-b border-ink-700/60 px-1.5 py-0.5 text-[10px] last:border-b-0 ${
+          className={`grid grid-cols-[124px_1fr] gap-1 border-b border-ink-700/60 px-1.5 py-0.5 t-meta last:border-b-0 ${
             row.flag ? 'bg-state-escalate/15' : ''
           }`}
         >
@@ -206,25 +206,25 @@ function EvidenceTable({ evidence }: { evidence: Evidence }) {
 function ComparisonPanel({ c }: { c: RuleComparison }) {
   return (
     <div className="mt-1.5 border border-state-escalate/40 bg-state-escalate/10">
-      <div className="border-b border-state-escalate/30 px-1.5 py-0.5 text-[9px] font-semibold tracking-[0.08em] text-state-escalate uppercase">
+      <div className="border-b border-state-escalate/30 px-1.5 py-0.5 t-meta font-semibold tracking-[0.08em] text-state-escalate uppercase">
         The comparison that fired
       </div>
       <div className="flex items-stretch">
         <div className="flex-1 border-r border-state-escalate/20 px-1.5 py-1">
-          <div className="truncate text-[9px] text-ink-400">{c.left_label}</div>
-          <div className="tabular text-[12px] text-ink-200">
+          <div className="truncate t-meta text-ink-400">{c.left_label}</div>
+          <div className="tabular t-body text-ink-200">
             {formatPaise(c.left_paise)}
           </div>
         </div>
-        <div className="flex items-center px-1 text-[11px] text-state-escalate">→</div>
+        <div className="flex items-center px-1 t-meta text-state-escalate">→</div>
         <div className="flex-1 px-1.5 py-1">
-          <div className="truncate text-[9px] text-ink-400">{c.right_label}</div>
-          <div className="tabular text-[12px] font-bold text-state-escalate">
+          <div className="truncate t-meta text-ink-400">{c.right_label}</div>
+          <div className="tabular t-body font-bold text-state-escalate">
             {formatPaise(c.right_paise)}
           </div>
         </div>
       </div>
-      <div className="border-t border-state-escalate/20 px-1.5 py-0.5 text-[9px] text-ink-400">
+      <div className="border-t border-state-escalate/20 px-1.5 py-0.5 t-meta text-ink-400">
         {c.threshold_label}: {formatPaise(c.threshold_paise)}
       </div>
     </div>
@@ -239,7 +239,7 @@ function RestOfDiff({ rows }: { rows: DiffRow[] }) {
     <div className="mt-1">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="w-full border border-ink-700 px-1.5 py-0.5 text-left text-[9px] text-ink-500 hover:border-ink-600 hover:text-ink-400"
+        className="w-full border border-ink-700 px-1.5 py-0.5 text-left t-meta text-ink-500 hover:border-ink-600 hover:text-ink-400"
       >
         {open ? '▾' : '▸'} {rows.length} other mandate field
         {rows.length === 1 ? '' : 's'} — not part of this rule
@@ -258,7 +258,7 @@ function DiffLegend({ diff }: { diff: DiffRow[] }) {
   const changedNotTriggering = diff.filter((r) => r.differs && !r.triggered).length
   if (!changedNotTriggering) return null
   return (
-    <div className="mt-1 text-[9px] text-ink-400">
+    <div className="mt-1 t-meta text-ink-400">
       {changedNotTriggering} field{changedNotTriggering === 1 ? '' : 's'} changed but did
       not trigger this rule
     </div>
@@ -343,7 +343,7 @@ function PaymentPanel({
     >
       <div className="flex items-center justify-between gap-2">
         <span
-          className={`truncate text-[9px] font-semibold tracking-[0.1em] ${
+          className={`truncate t-meta font-semibold tracking-[0.1em] ${
             captured ? 'text-state-allow' : awaiting ? 'text-accent' : 'text-state-deny'
           }`}
         >
@@ -362,7 +362,7 @@ function PaymentPanel({
             'PAYMENT FAILED'
           )}
         </span>
-        <span className="tabular shrink-0 text-[9px] text-ink-400">
+        <span className="tabular shrink-0 t-meta text-ink-400">
           {payment.amount_paise != null ? formatPaise(payment.amount_paise) : ''}
         </span>
       </div>
@@ -373,7 +373,7 @@ function PaymentPanel({
             href={payment.short_url}
             target="_blank"
             rel="noreferrer noopener"
-            className="tabular mt-1 block truncate text-[10px] text-accent underline decoration-accent/40 hover:decoration-accent"
+            className="t-transition t-focus tabular mt-1 block truncate t-meta text-accent underline decoration-accent/40 hover:decoration-accent"
             title={`${payment.short_url}
 Opened automatically on approval; this link is the fallback if the popup was blocked.`}
           >
@@ -387,7 +387,7 @@ Opened automatically on approval; this link is the fallback if the popup was blo
               className="mt-1 size-24 bg-white p-1"
             />
           ) : null}
-          <div className="mt-0.5 text-[9px] text-ink-400">
+          <div className="mt-0.5 t-meta text-ink-400">
             {expired
               ? 'Poller stopped. The link may still be payable.'
               : 'Opened in a new tab · polling every 2s'}
@@ -397,13 +397,13 @@ Opened automatically on approval; this link is the fallback if the popup was blo
 
       {captured && payment.razorpay_payment_id ? (
         <div className="mt-0.5 flex items-baseline gap-1">
-          <span className="tabular min-w-0 flex-1 truncate text-[10px] text-state-allow">
+          <span className="tabular min-w-0 flex-1 truncate t-meta text-state-allow">
             {payment.razorpay_payment_id}
           </span>
           {payment.resolved_seq != null && onJumpToSeq ? (
             <button
               onClick={() => onJumpToSeq(sessionId, payment.resolved_seq as number)}
-              className="tabular shrink-0 text-[9px] text-ink-400 underline decoration-dotted hover:text-accent"
+              className="tabular shrink-0 t-meta text-ink-400 underline decoration-dotted hover:text-accent"
               title="Open the ledger entry that recorded this capture"
             >
               seq {payment.resolved_seq}
@@ -413,10 +413,10 @@ Opened automatically on approval; this link is the fallback if the popup was blo
       ) : null}
 
       {payment.state === 'failed' && payment.detail ? (
-        <div className="mt-0.5 text-[9px] text-state-deny">{payment.detail}</div>
+        <div className="mt-0.5 t-meta text-state-deny">{payment.detail}</div>
       ) : null}
 
-      <div className="tabular mt-0.5 truncate text-[9px] text-ink-400">
+      <div className="tabular mt-0.5 truncate t-meta text-ink-400">
         {payment.razorpay_order_id} · seq {payment.seq}
       </div>
     </div>
@@ -447,11 +447,11 @@ function Card({
     <div className="border-b border-ink-700 p-2">
       {/* ── Lead with the trigger, then name the merchant it concerns ── */}
       <div className="flex items-start justify-between gap-2">
-        <span className="border border-state-escalate/50 bg-state-escalate/15 px-1 text-[10px] font-bold tracking-[0.06em] text-state-escalate">
+        <span className="border border-state-escalate/50 bg-state-escalate/15 px-1 t-meta font-bold tracking-[0.06em] text-state-escalate">
           {group.reason_code}
         </span>
         <span
-          className="shrink-0 text-[10px] text-ink-400"
+          className="shrink-0 t-meta text-ink-400"
           title={
             group.session_count > 1
               ? 'The same rule fired for the same merchant across these sessions'
@@ -465,28 +465,28 @@ function Card({
       </div>
 
       <div
-        className="mt-0.5 truncate text-[9px] text-ink-400"
+        className="mt-0.5 truncate t-meta text-ink-400"
         title={group.merchant_id}
       >
         merchant: {group.merchant_id}
       </div>
 
-      <div className="mt-1 text-[10px] leading-snug text-ink-200">{group.cause}</div>
+      <div className="mt-1 t-meta leading-snug text-ink-200">{group.cause}</div>
 
       {showEvidence ? (
-        <div className="mt-1 border-l-2 border-state-escalate/50 pl-1.5 text-[9px] text-ink-400">
+        <div className="mt-1 border-l-2 border-state-escalate/50 pl-1.5 t-meta text-ink-400">
           This rule examines transaction history, not the cart.
         </div>
       ) : null}
 
-      <div className="mt-1 text-[9px] leading-snug text-ink-400">{escalation.detail}</div>
+      <div className="mt-1 t-meta leading-snug text-ink-400">{escalation.detail}</div>
 
       {showEvidence ? (
         <EvidenceTable evidence={group.evidence!} />
       ) : escalation.history_based ? (
         // Escalations raised before evidence capture existed have none to show.
         // Saying so beats presenting a cart diff the rule never looked at.
-        <div className="mt-1.5 border border-ink-700 px-1.5 py-1 text-[10px] text-ink-400">
+        <div className="mt-1.5 border border-ink-700 px-1.5 py-1 t-meta text-ink-400">
           Evidence for this rule was not recorded when it fired.
         </div>
       ) : (
@@ -532,7 +532,7 @@ function Card({
                 /> : null}
               {group.session_count > 1 ? (
                 <div
-                  className="tabular truncate text-[9px] text-ink-400"
+                  className="tabular truncate t-meta text-ink-400"
                   title={`${e.session_id}\n${e.goal ?? ''}`}
                 >
                   {shortId(e.session_id)} · {e.goal ?? 'no goal'}
@@ -540,7 +540,7 @@ function Card({
               ) : null}
 
               {failure ? (
-                <div className="mb-0.5 border border-state-deny/40 bg-state-deny/10 px-1 py-0.5 text-[10px] text-state-deny">
+                <div className="mb-0.5 border border-state-deny/40 bg-state-deny/10 px-1 py-0.5 t-meta text-state-deny">
                   {failure}
                 </div>
               ) : null}
@@ -549,14 +549,14 @@ function Card({
                 <button
                   disabled={inFlight !== null}
                   onClick={() => onDecide(e, 'approve')}
-                  className="flex-1 border border-state-allow/50 py-0.5 text-[10px] font-semibold tracking-[0.08em] text-state-allow enabled:hover:bg-state-allow/15 disabled:opacity-40"
+                  className="flex-1 border border-state-allow/50 py-0.5 t-meta font-semibold tracking-[0.08em] text-state-allow enabled:hover:bg-state-allow/15 disabled:opacity-40"
                 >
                   {inFlight === 'approve' ? 'APPROVING…' : 'APPROVE'}
                 </button>
                 <button
                   disabled={inFlight !== null}
                   onClick={() => onDecide(e, 'reject')}
-                  className="flex-1 border border-state-deny/50 py-0.5 text-[10px] font-semibold tracking-[0.08em] text-state-deny enabled:hover:bg-state-deny/15 disabled:opacity-40"
+                  className="flex-1 border border-state-deny/50 py-0.5 t-meta font-semibold tracking-[0.08em] text-state-deny enabled:hover:bg-state-deny/15 disabled:opacity-40"
                 >
                   {inFlight === 'reject' ? 'REJECTING…' : 'REJECT'}
                 </button>
@@ -654,7 +654,7 @@ export function Escalations({
                   <br />
                   <button
                     onClick={onClearFilter}
-                    className="mt-1 border border-accent/50 px-1.5 py-0.5 text-[10px] text-accent hover:bg-accent/10"
+                    className="t-transition t-focus mt-1 border border-accent/50 px-1.5 py-0.5 t-meta text-accent hover:bg-accent/10"
                   >
                     SHOW ALL
                   </button>

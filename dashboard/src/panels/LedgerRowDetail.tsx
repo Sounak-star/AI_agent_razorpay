@@ -31,11 +31,11 @@ function Field({
     tone === 'good' ? 'text-state-allow' : tone === 'bad' ? 'text-state-deny' : 'text-ink-300'
   return (
     <div className="flex gap-2">
-      <span className="w-[104px] shrink-0 text-[10px] tracking-[0.06em] text-ink-400 uppercase">
+      <span className="w-[104px] shrink-0 t-meta tracking-[0.06em] text-ink-400 uppercase">
         {label}
       </span>
       <span
-        className={`tabular min-w-0 flex-1 text-[10px] ${color} ${
+        className={`tabular min-w-0 flex-1 t-meta ${color} ${
           wrap ? 'break-all' : 'truncate'
         }`}
       >
@@ -48,7 +48,7 @@ function Field({
 function VerdictBadge({ result }: { result: Rederivation | null }) {
   if (!result) {
     return (
-      <span className="border border-ink-600 px-1.5 py-0.5 text-[10px] text-ink-400">
+      <span className="border border-ink-600 px-1.5 py-0.5 t-meta text-ink-400">
         RE-DERIVING…
       </span>
     )
@@ -57,7 +57,7 @@ function VerdictBadge({ result }: { result: Rederivation | null }) {
     return (
       <span
         title="This browser hashed the payload shown below and got the stored hash."
-        className="border border-state-allow/50 bg-state-allow/10 px-1.5 py-0.5 text-[10px] font-bold tracking-[0.06em] text-state-allow"
+        className="border border-state-allow/50 bg-state-allow/10 px-1.5 py-0.5 t-meta font-bold tracking-[0.06em] text-state-allow"
       >
         RE-DERIVED ✓
       </span>
@@ -67,7 +67,7 @@ function VerdictBadge({ result }: { result: Rederivation | null }) {
     return (
       <span
         title="The hash computed here does not match the stored hash. Compare the values below."
-        className="border border-state-deny/60 bg-state-deny/15 px-1.5 py-0.5 text-[10px] font-bold tracking-[0.06em] text-state-deny"
+        className="border border-state-deny/60 bg-state-deny/15 px-1.5 py-0.5 t-meta font-bold tracking-[0.06em] text-state-deny"
       >
         MISMATCH ✗
       </span>
@@ -76,7 +76,7 @@ function VerdictBadge({ result }: { result: Rederivation | null }) {
   return (
     <span
       title={result.reason ?? 'could not compute'}
-      className="border border-state-escalate/50 bg-state-escalate/10 px-1.5 py-0.5 text-[10px] font-bold tracking-[0.06em] text-state-escalate"
+      className="border border-state-escalate/50 bg-state-escalate/10 px-1.5 py-0.5 t-meta font-bold tracking-[0.06em] text-state-escalate"
     >
       CANNOT VERIFY
     </span>
@@ -113,10 +113,10 @@ export function LedgerRowDetail({ entry }: { entry: LedgerRow }) {
       <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-4">
         {/* ── Payload ── */}
         <div className="min-w-0">
-          <div className="mb-1 text-[10px] font-semibold tracking-[0.1em] text-ink-400 uppercase">
+          <div className="mb-1 t-meta font-semibold tracking-[0.1em] text-ink-400 uppercase">
             Payload
           </div>
-          <pre className="max-h-40 overflow-auto border border-ink-700 bg-ink-900 p-2 text-[10px] leading-relaxed whitespace-pre text-ink-100">
+          <pre className="max-h-40 overflow-auto border border-ink-700 bg-ink-900 p-2 t-meta leading-relaxed whitespace-pre text-ink-100">
             {JSON.stringify(entry.payload ?? {}, null, 2)}
           </pre>
         </div>
@@ -124,7 +124,7 @@ export function LedgerRowDetail({ entry }: { entry: LedgerRow }) {
         {/* ── Chain evidence ── */}
         <div className="flex min-w-0 flex-col gap-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-semibold tracking-[0.1em] text-ink-400 uppercase">
+            <span className="t-meta font-semibold tracking-[0.1em] text-ink-400 uppercase">
               Hash chain
             </span>
             <VerdictBadge result={result} />
@@ -155,18 +155,18 @@ export function LedgerRowDetail({ entry }: { entry: LedgerRow }) {
           <div>
             <button
               onClick={() => setShowPreimage((v) => !v)}
-              className="w-full border border-ink-700 px-1.5 py-0.5 text-left text-[10px] text-ink-400 hover:border-accent/50 hover:text-accent"
+              className="w-full border border-ink-700 px-1.5 py-0.5 text-left t-meta text-ink-400 hover:border-accent/50 hover:text-accent"
             >
               {showPreimage ? '▾' : '▸'} show hash input (canonical JSON, sorted keys)
             </button>
             {showPreimage ? (
-              <pre className="mt-1 max-h-24 overflow-auto border border-ink-700 bg-ink-900 p-2 text-[10px] leading-relaxed break-all whitespace-pre-wrap text-ink-400">
+              <pre className="mt-1 max-h-24 overflow-auto border border-ink-700 bg-ink-900 p-2 t-meta leading-relaxed break-all whitespace-pre-wrap text-ink-400">
                 {result?.preimage ?? '…'}
               </pre>
             ) : null}
           </div>
 
-          <p className="text-[9px] leading-snug text-ink-400">
+          <p className="t-meta leading-snug text-ink-400">
             SHA-256 computed in this browser from the payload above — not read
             from the server's verify endpoint.
             {result?.state === 'unavailable' && result.reason
