@@ -1,7 +1,7 @@
 {
   "merchant_id": "merchant_tollgate_demo",
   "merchant_name": "Tollgate Demo Store",
-  "catalog_version": "1.0.0",
+  "catalog_version": "1.1.0",
   "skus": [
     {
       "id": "GRO001",
@@ -439,6 +439,776 @@
       "price_paise": 29900,
       "stock": 400,
       "return_window_days": 30,
+      "agent_purchasable": true
+    },
+    {
+      "id": "GRO011",
+      "name": "Aashirvaad Select Sharbati Atta 5kg",
+      "description": "Made from 100% Sharbati wheat. Soft rotis that stay fresh longer.",
+      "category": "grocery",
+      "price_paise": 32500,
+      "stock": 150,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "GRO012",
+      "name": "India Gate Basmati Rice 1kg",
+      "description": "Classic aged basmati. Long slender grains, non-sticky when cooked.",
+      "category": "grocery",
+      "price_paise": 18500,
+      "stock": 180,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "GRO013",
+      "name": "Saffola Gold Refined Oil 1L",
+      "description": "Blend of rice bran and sunflower oil. Lower absorption while frying.",
+      "category": "grocery",
+      "price_paise": 19900,
+      "stock": 200,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "GRO014",
+      "name": "Tata Sampann Chana Dal 1kg",
+      "description": "Unpolished chana dal with natural protein and fibre retained.",
+      "category": "grocery",
+      "price_paise": 14500,
+      "stock": 160,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "GRO015",
+      "name": "Tata Sampann Moong Dal 1kg",
+      "description": "Split green gram, unpolished. Cooks quickly, light on digestion.",
+      "category": "grocery",
+      "price_paise": 16500,
+      "stock": 160,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "GRO016",
+      "name": "Everest Garam Masala 100g",
+      "description": "Ground blend of 13 spices. Finishing masala for curries and dals.",
+      "category": "grocery",
+      "price_paise": 8500,
+      "stock": 240,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "GRO017",
+      "name": "MDH Deggi Mirch Powder 100g",
+      "description": "Mild Kashmiri-style chilli powder. Deep red colour, low heat.",
+      "category": "grocery",
+      "price_paise": 9500,
+      "stock": 220,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "GRO018",
+      "name": "Amul Butter 500g",
+      "description": "Pasteurised salted table butter. Refrigerate after opening.",
+      "category": "grocery",
+      "price_paise": 26500,
+      "stock": 120,
+      "return_window_days": 3,
+      "agent_purchasable": true
+    },
+    {
+      "id": "GRO019",
+      "name": "Amul Masti Dahi 400g",
+      "description": "Thick set curd, live cultures. Best consumed within 3 days.",
+      "category": "grocery",
+      "price_paise": 4500,
+      "stock": 90,
+      "return_window_days": 2,
+      "agent_purchasable": true
+    },
+    {
+      "id": "GRO020",
+      "name": "Nestle Everyday Dairy Whitener 400g",
+      "description": "Instant milk powder for tea and coffee. Dissolves without lumps.",
+      "category": "grocery",
+      "price_paise": 23500,
+      "stock": 140,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "GRO021",
+      "name": "Bru Instant Coffee 100g",
+      "description": "Blend of coffee and chicory. Strong aroma, dissolves instantly.",
+      "category": "grocery",
+      "price_paise": 32500,
+      "stock": 130,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "GRO022",
+      "name": "Tata Tea Premium Leaf 500g",
+      "description": "Assam-heavy blend. Strong liquor, suited to milk tea.",
+      "category": "grocery",
+      "price_paise": 26000,
+      "stock": 170,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "GRO023",
+      "name": "Parle-G Gold Biscuits 1kg",
+      "description": "Glucose biscuits, family pack. Sealed inner packs.",
+      "category": "grocery",
+      "price_paise": 13500,
+      "stock": 200,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "GRO024",
+      "name": "Britannia Good Day Cashew Cookies 600g",
+      "description": "Buttery cookies with real cashew pieces.",
+      "category": "grocery",
+      "price_paise": 12000,
+      "stock": 180,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "GRO025",
+      "name": "Kissan Mixed Fruit Jam 700g",
+      "description": "Made with real fruit pulp. No added preservatives.",
+      "category": "grocery",
+      "price_paise": 21500,
+      "stock": 110,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "GRO026",
+      "name": "Fortune Besan 1kg",
+      "description": "Finely milled gram flour for pakoras, kadhi and batters.",
+      "category": "grocery",
+      "price_paise": 9500,
+      "stock": 150,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "GRO027",
+      "name": "Aashirvaad Sugar Release Control Atta 5kg",
+      "description": "Multigrain atta formulated for slower sugar release.",
+      "category": "grocery",
+      "price_paise": 38000,
+      "stock": 100,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "GRO028",
+      "name": "Catch Black Pepper Powder 100g",
+      "description": "Sprinkler pack. Freshly ground Malabar pepper.",
+      "category": "grocery",
+      "price_paise": 14500,
+      "stock": 190,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "ELE011",
+      "name": "Logitech M235 Wireless Mouse",
+      "description": "2.4GHz nano receiver, 12-month battery life, contoured grip.",
+      "category": "electronics",
+      "price_paise": 89900,
+      "stock": 70,
+      "return_window_days": 10,
+      "agent_purchasable": true
+    },
+    {
+      "id": "ELE012",
+      "name": "Dell KB216 Wired Keyboard",
+      "description": "Full-size membrane keyboard with numeric keypad. USB plug-and-play.",
+      "category": "electronics",
+      "price_paise": 79900,
+      "stock": 65,
+      "return_window_days": 10,
+      "agent_purchasable": true
+    },
+    {
+      "id": "ELE013",
+      "name": "Logitech MK215 Wireless Keyboard and Mouse Combo",
+      "description": "Compact wireless set sharing one USB receiver.",
+      "category": "electronics",
+      "price_paise": 149900,
+      "stock": 50,
+      "return_window_days": 10,
+      "agent_purchasable": true
+    },
+    {
+      "id": "ELE014",
+      "name": "boAt Rockerz 450 Bluetooth Headphones",
+      "description": "On-ear, 15H playback, 40mm drivers, foldable band.",
+      "category": "electronics",
+      "price_paise": 149900,
+      "stock": 60,
+      "return_window_days": 10,
+      "agent_purchasable": true
+    },
+    {
+      "id": "ELE015",
+      "name": "JBL Go 3 Portable Bluetooth Speaker",
+      "description": "IP67 waterproof, 5H playtime, USB-C charging.",
+      "category": "electronics",
+      "price_paise": 279900,
+      "stock": 45,
+      "return_window_days": 10,
+      "agent_purchasable": true
+    },
+    {
+      "id": "ELE016",
+      "name": "Realme Buds Wireless 3 Neckband",
+      "description": "40H battery, 13.6mm drivers, active noise cancellation.",
+      "category": "electronics",
+      "price_paise": 179900,
+      "stock": 55,
+      "return_window_days": 10,
+      "agent_purchasable": true
+    },
+    {
+      "id": "ELE017",
+      "name": "Ambrane 20000mAh Power Bank",
+      "description": "20W fast charge, dual output, Type-C input.",
+      "category": "electronics",
+      "price_paise": 189900,
+      "stock": 60,
+      "return_window_days": 10,
+      "agent_purchasable": true
+    },
+    {
+      "id": "ELE018",
+      "name": "Anker 65W GaN USB-C Charger",
+      "description": "Three ports, compact GaN design, charges a laptop and phone together.",
+      "category": "electronics",
+      "price_paise": 299900,
+      "stock": 40,
+      "return_window_days": 10,
+      "agent_purchasable": true
+    },
+    {
+      "id": "ELE019",
+      "name": "Portronics Konnect L 3-in-1 Charging Cable",
+      "description": "USB-C, Micro-USB and Lightning tips on one braided cable.",
+      "category": "electronics",
+      "price_paise": 49900,
+      "stock": 120,
+      "return_window_days": 10,
+      "agent_purchasable": true
+    },
+    {
+      "id": "ELE020",
+      "name": "HP v236w 32GB USB Pen Drive",
+      "description": "Metal casing, USB 2.0, plug-and-play on Windows and macOS.",
+      "category": "electronics",
+      "price_paise": 39900,
+      "stock": 130,
+      "return_window_days": 10,
+      "agent_purchasable": true
+    },
+    {
+      "id": "ELE021",
+      "name": "WD Elements 1TB Portable Hard Drive",
+      "description": "USB 3.0, bus powered, formatted NTFS out of the box.",
+      "category": "electronics",
+      "price_paise": 419900,
+      "stock": 30,
+      "return_window_days": 10,
+      "agent_purchasable": true
+    },
+    {
+      "id": "ELE022",
+      "name": "TP-Link TL-WR845N 300Mbps WiFi Router",
+      "description": "Three fixed antennas, WPA2, parental controls.",
+      "category": "electronics",
+      "price_paise": 119900,
+      "stock": 45,
+      "return_window_days": 10,
+      "agent_purchasable": true
+    },
+    {
+      "id": "ELE023",
+      "name": "Zebronics Zeb-Companion 107 Keyboard Mouse Set",
+      "description": "Wired combo, spill resistant, 1000 DPI optical mouse.",
+      "category": "electronics",
+      "price_paise": 69900,
+      "stock": 80,
+      "return_window_days": 10,
+      "agent_purchasable": true
+    },
+    {
+      "id": "ELE024",
+      "name": "Quantum QHM350 Laptop Cooling Pad",
+      "description": "Dual 120mm fans, adjustable height, USB powered.",
+      "category": "electronics",
+      "price_paise": 79900,
+      "stock": 55,
+      "return_window_days": 10,
+      "agent_purchasable": true
+    },
+    {
+      "id": "ELE025",
+      "name": "Rapoo M100 Silent Wireless Mouse",
+      "description": "Multi-mode Bluetooth and 2.4GHz, quiet click switches.",
+      "category": "electronics",
+      "price_paise": 59900,
+      "stock": 90,
+      "return_window_days": 10,
+      "agent_purchasable": true
+    },
+    {
+      "id": "ELE026",
+      "name": "Boya BY-M1 Lavalier Microphone",
+      "description": "Omnidirectional clip-on mic, 6m cable, works with phone and DSLR.",
+      "category": "electronics",
+      "price_paise": 89900,
+      "stock": 50,
+      "return_window_days": 10,
+      "agent_purchasable": true
+    },
+    {
+      "id": "BOK009",
+      "name": "Sapiens: A Brief History of Humankind — Yuval Noah Harari",
+      "description": "How Homo sapiens came to dominate the planet. Paperback, 512 pages.",
+      "category": "books",
+      "price_paise": 59900,
+      "stock": 80,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "BOK010",
+      "name": "Ikigai — Hector Garcia and Francesc Miralles",
+      "description": "The Japanese concept of a reason for being. Hardcover, 208 pages.",
+      "category": "books",
+      "price_paise": 29900,
+      "stock": 110,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "BOK011",
+      "name": "The Psychology of Money — Morgan Housel",
+      "description": "Timeless lessons on wealth, greed and happiness. 252 pages.",
+      "category": "books",
+      "price_paise": 39900,
+      "stock": 95,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "BOK012",
+      "name": "Wings of Fire — A.P.J. Abdul Kalam",
+      "description": "Autobiography of India's former President and aerospace scientist.",
+      "category": "books",
+      "price_paise": 25000,
+      "stock": 120,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "BOK013",
+      "name": "The Monk Who Sold His Ferrari — Robin Sharma",
+      "description": "A fable about fulfilling your dreams and reaching your destiny.",
+      "category": "books",
+      "price_paise": 29900,
+      "stock": 100,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "BOK014",
+      "name": "Think and Grow Rich — Napoleon Hill",
+      "description": "The 1937 classic on personal achievement and desire.",
+      "category": "books",
+      "price_paise": 19900,
+      "stock": 140,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "BOK015",
+      "name": "The Subtle Art of Not Giving a F*ck — Mark Manson",
+      "description": "A counterintuitive approach to living a good life.",
+      "category": "books",
+      "price_paise": 44900,
+      "stock": 85,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "BOK016",
+      "name": "The Pragmatic Programmer — Hunt and Thomas",
+      "description": "20th anniversary edition. From journeyman to master.",
+      "category": "books",
+      "price_paise": 129900,
+      "stock": 45,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "BOK017",
+      "name": "Refactoring — Martin Fowler",
+      "description": "Improving the design of existing code. Second edition.",
+      "category": "books",
+      "price_paise": 149900,
+      "stock": 35,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "BOK018",
+      "name": "The Almanack of Naval Ravikant — Eric Jorgenson",
+      "description": "Collected wisdom on wealth and happiness.",
+      "category": "books",
+      "price_paise": 49900,
+      "stock": 70,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "BOK019",
+      "name": "India After Gandhi — Ramachandra Guha",
+      "description": "The history of the world's largest democracy. Revised edition.",
+      "category": "books",
+      "price_paise": 89900,
+      "stock": 50,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "BOK020",
+      "name": "Train to Pakistan — Khushwant Singh",
+      "description": "A novel of Partition, set in the village of Mano Majra.",
+      "category": "books",
+      "price_paise": 22500,
+      "stock": 90,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "BOK021",
+      "name": "The White Tiger — Aravind Adiga",
+      "description": "Man Booker Prize winner. A darkly comic view of modern India.",
+      "category": "books",
+      "price_paise": 34900,
+      "stock": 75,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "BOK022",
+      "name": "Man's Search for Meaning — Viktor E. Frankl",
+      "description": "A psychiatrist's account of survival and purpose.",
+      "category": "books",
+      "price_paise": 27500,
+      "stock": 100,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "CLO009",
+      "name": "Allen Solly Slim Fit Chinos",
+      "description": "Cotton stretch twill, mid rise, flat front. Sizes 30-38.",
+      "category": "clothing",
+      "price_paise": 179900,
+      "stock": 60,
+      "return_window_days": 15,
+      "agent_purchasable": true
+    },
+    {
+      "id": "CLO010",
+      "name": "Van Heusen Formal Trousers",
+      "description": "Wrinkle-resistant poly-viscose, tailored fit. Sizes 30-40.",
+      "category": "clothing",
+      "price_paise": 199900,
+      "stock": 55,
+      "return_window_days": 15,
+      "agent_purchasable": true
+    },
+    {
+      "id": "CLO011",
+      "name": "Peter England Casual Checked Shirt",
+      "description": "100% cotton, full sleeve, button-down collar. Sizes S-XXL.",
+      "category": "clothing",
+      "price_paise": 99900,
+      "stock": 80,
+      "return_window_days": 15,
+      "agent_purchasable": true
+    },
+    {
+      "id": "CLO012",
+      "name": "H&M Oversized Cotton T-Shirt",
+      "description": "Heavy 220 GSM jersey, dropped shoulders. Sizes XS-XL.",
+      "category": "clothing",
+      "price_paise": 79900,
+      "stock": 90,
+      "return_window_days": 15,
+      "agent_purchasable": true
+    },
+    {
+      "id": "CLO013",
+      "name": "Nike Dri-FIT Training T-Shirt",
+      "description": "Sweat-wicking polyester, standard fit, mesh back panel.",
+      "category": "clothing",
+      "price_paise": 149900,
+      "stock": 70,
+      "return_window_days": 15,
+      "agent_purchasable": true
+    },
+    {
+      "id": "CLO014",
+      "name": "Adidas Essentials Fleece Track Pants",
+      "description": "Cotton-blend fleece, elastic waist with drawcord, side pockets.",
+      "category": "clothing",
+      "price_paise": 229900,
+      "stock": 50,
+      "return_window_days": 15,
+      "agent_purchasable": true
+    },
+    {
+      "id": "CLO015",
+      "name": "Puma Unisex Running Shoes",
+      "description": "SoftFoam+ insole, breathable mesh upper. UK sizes 6-11.",
+      "category": "clothing",
+      "price_paise": 299900,
+      "stock": 45,
+      "return_window_days": 15,
+      "agent_purchasable": true
+    },
+    {
+      "id": "CLO016",
+      "name": "Bata Formal Derby Shoes",
+      "description": "Synthetic leather upper, cushioned insole, lace-up.",
+      "category": "clothing",
+      "price_paise": 249900,
+      "stock": 40,
+      "return_window_days": 15,
+      "agent_purchasable": true
+    },
+    {
+      "id": "CLO017",
+      "name": "Woodland Leather Reversible Belt",
+      "description": "Genuine leather, brushed metal buckle, black and brown sides.",
+      "category": "clothing",
+      "price_paise": 129900,
+      "stock": 75,
+      "return_window_days": 15,
+      "agent_purchasable": true
+    },
+    {
+      "id": "CLO018",
+      "name": "Raymond Wool Blend Blazer",
+      "description": "Two-button single-breasted, notch lapel, half-canvas.",
+      "category": "clothing",
+      "price_paise": 599900,
+      "stock": 20,
+      "return_window_days": 15,
+      "agent_purchasable": true
+    },
+    {
+      "id": "CLO019",
+      "name": "Fabindia Cotton Kurta",
+      "description": "Handloom cotton, mandarin collar, side slits. Sizes S-XXL.",
+      "category": "clothing",
+      "price_paise": 149900,
+      "stock": 65,
+      "return_window_days": 15,
+      "agent_purchasable": true
+    },
+    {
+      "id": "CLO020",
+      "name": "Biba Printed A-Line Kurti",
+      "description": "Rayon blend, three-quarter sleeve, knee length.",
+      "category": "clothing",
+      "price_paise": 129900,
+      "stock": 70,
+      "return_window_days": 15,
+      "agent_purchasable": true
+    },
+    {
+      "id": "CLO021",
+      "name": "W for Woman Palazzo Pants",
+      "description": "Viscose crepe, elasticated waist, wide leg.",
+      "category": "clothing",
+      "price_paise": 99900,
+      "stock": 80,
+      "return_window_days": 15,
+      "agent_purchasable": true
+    },
+    {
+      "id": "CLO022",
+      "name": "Louis Philippe Polo T-Shirt",
+      "description": "Pima cotton pique, two-button placket, ribbed collar.",
+      "category": "clothing",
+      "price_paise": 129900,
+      "stock": 60,
+      "return_window_days": 15,
+      "agent_purchasable": true
+    },
+    {
+      "id": "HOM008",
+      "name": "Milton Thermosteel Flask 1L",
+      "description": "Double-walled stainless steel. Holds temperature 24 hours.",
+      "category": "home",
+      "price_paise": 109900,
+      "stock": 60,
+      "return_window_days": 10,
+      "agent_purchasable": true
+    },
+    {
+      "id": "HOM009",
+      "name": "Borosil Glass Lunch Box Set of 3",
+      "description": "Borosilicate glass, microwave and oven safe, airtight lids.",
+      "category": "home",
+      "price_paise": 89900,
+      "stock": 55,
+      "return_window_days": 10,
+      "agent_purchasable": true
+    },
+    {
+      "id": "HOM010",
+      "name": "Prestige Omega Deluxe Non-Stick Tawa 25cm",
+      "description": "Three-layer non-stick coating, induction and gas compatible.",
+      "category": "home",
+      "price_paise": 79900,
+      "stock": 70,
+      "return_window_days": 10,
+      "agent_purchasable": true
+    },
+    {
+      "id": "HOM011",
+      "name": "Pigeon Cruise Induction Cooktop 1800W",
+      "description": "Seven preset menus, touch panel, auto shut-off.",
+      "category": "home",
+      "price_paise": 199900,
+      "stock": 35,
+      "return_window_days": 10,
+      "agent_purchasable": true
+    },
+    {
+      "id": "HOM012",
+      "name": "Inalsa Coffee and Spice Grinder 150W",
+      "description": "Stainless steel blades, 50g capacity, pulse operation.",
+      "category": "home",
+      "price_paise": 149900,
+      "stock": 40,
+      "return_window_days": 10,
+      "agent_purchasable": true
+    },
+    {
+      "id": "HOM013",
+      "name": "Cello Checkers Plastic Storage Jar Set of 6",
+      "description": "Airtight lids, transparent body, stackable. 1L each.",
+      "category": "home",
+      "price_paise": 59900,
+      "stock": 85,
+      "return_window_days": 10,
+      "agent_purchasable": true
+    },
+    {
+      "id": "HOM014",
+      "name": "Wakefit Memory Foam Pillow",
+      "description": "Cervical contour, removable bamboo-blend cover.",
+      "category": "home",
+      "price_paise": 129900,
+      "stock": 50,
+      "return_window_days": 10,
+      "agent_purchasable": true
+    },
+    {
+      "id": "HOM015",
+      "name": "Solimo Microfibre Bath Towel 400 GSM",
+      "description": "Quick drying, lint free, 140x70cm.",
+      "category": "home",
+      "price_paise": 49900,
+      "stock": 95,
+      "return_window_days": 10,
+      "agent_purchasable": true
+    },
+    {
+      "id": "HOM016",
+      "name": "Godrej aer Room Freshener 240ml",
+      "description": "Long-lasting spray, alcohol free formulation.",
+      "category": "home",
+      "price_paise": 24900,
+      "stock": 120,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "HOM017",
+      "name": "Harpic Power Plus Toilet Cleaner 1L",
+      "description": "Thick liquid, removes limescale and stains.",
+      "category": "home",
+      "price_paise": 21500,
+      "stock": 130,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "HOM018",
+      "name": "Vim Dishwash Gel 1.8L Refill",
+      "description": "Cuts grease, lemon fragrance, safe on hands.",
+      "category": "home",
+      "price_paise": 32500,
+      "stock": 110,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "HOM019",
+      "name": "Scotch-Brite Scrub Pad Pack of 6",
+      "description": "Non-scratch scouring pads for everyday utensils.",
+      "category": "home",
+      "price_paise": 12900,
+      "stock": 150,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "HOM020",
+      "name": "Philips 20W LED Batten 4ft",
+      "description": "Cool daylight 6500K, surge protected, 2-year warranty.",
+      "category": "home",
+      "price_paise": 44900,
+      "stock": 80,
+      "return_window_days": 10,
+      "agent_purchasable": true
+    },
+    {
+      "id": "HOM021",
+      "name": "Camlin Whiteboard Marker Set of 8",
+      "description": "Low-odour ink, chisel tip, refillable barrel.",
+      "category": "home",
+      "price_paise": 24900,
+      "stock": 140,
+      "return_window_days": 7,
+      "agent_purchasable": true
+    },
+    {
+      "id": "HOM022",
+      "name": "Faber-Castell Coloured Pencils Set of 24",
+      "description": "Break-resistant leads, hexagonal barrels, pre-sharpened.",
+      "category": "home",
+      "price_paise": 29900,
+      "stock": 130,
+      "return_window_days": 7,
       "agent_purchasable": true
     }
   ]

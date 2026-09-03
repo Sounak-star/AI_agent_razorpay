@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type {
   DiffRow,
   Escalation,
@@ -273,9 +273,63 @@ function DiffLegend({ diff }: { diff: DiffRow[] }) {
   returned one — an absent QR is left absent rather than generated locally, so
   what is on screen is what the provider sent.
 */
-function PaymentPanel({ payment }: { payment: EscalationPayment }) {
+/**
+ * Seconds left before the poller gives up, or null when unknowable.
+ *
+ * Recomputed every second from the wait's start and length rather than read
+ * from a server figure: the escalations poll is 2s, so a server-sent
+ * "remaining" would visibly stutter and sit stale between ticks.
+ */
+function useRemaining(payment: EscalationPayment): number | null {
+  const { opened_at, timeout_seconds, state } = payment
+  const [now, setNow] = useState(() => Date.now())
+
+  const counting = state === 'awaiting_capture' && !!opened_at && !!timeout_seconds
+
+  useEffect(() => {
+    if (!counting) return
+    const id = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [counting])
+
+  if (!counting) return null
+  const started = Date.parse(opened_at as string)
+  if (Number.isNaN(started)) return null
+  return Math.max(0, Math.round((timeout_seconds as number) - (now - started) / 1000))
+}
+
+function mmss(seconds: number): string {
+  const m = Math.floor(seconds / 60)
+  const s = seconds % 60
+  return `${m}:${String(s).padStart(2, '0')}`
+}
+
+/*
+  The live payment on an approved escalation.
+
+  Everything comes off the ORDER_CREATED ledger entry the server read back: the
+  URL, the QR, the order id. The QR renders only when Razorpay actually returned
+  one — an absent QR is left absent rather than generated locally, so what is on
+  screen is what the provider sent.
+
+  The link is also opened automatically on approval. The popup blocker is the
+  reason the URL stays on the card regardless: an auto-open that silently fails
+  would leave the operator with no way to pay, so the visible link is the
+  fallback, not a duplicate.
+*/
+function PaymentPanel({
+  payment,
+  onJumpToSeq,
+  sessionId,
+}: {
+  payment: EscalationPayment
+  sessionId: string
+  onJumpToSeq?: (sessionId: string, seq: number) => void
+}) {
   const awaiting = payment.state === 'awaiting_capture'
   const captured = payment.state === 'captured'
+  const remaining = useRemaining(payment)
+  const expired = remaining === 0
 
   return (
     <div
@@ -289,17 +343,26 @@ function PaymentPanel({ payment }: { payment: EscalationPayment }) {
     >
       <div className="flex items-center justify-between gap-2">
         <span
-          className={`text-[9px] font-semibold tracking-[0.1em] ${
+          className={`truncate text-[9px] font-semibold tracking-[0.1em] ${
             captured ? 'text-state-allow' : awaiting ? 'text-accent' : 'text-state-deny'
           }`}
         >
-          {captured
-            ? 'PAID'
-            : awaiting
-              ? 'AWAITING PAYMENT'
-              : 'PAYMENT FAILED'}
+          {captured ? (
+            <>PAYMENT CAPTURED</>
+          ) : awaiting ? (
+            <>
+              WAITING FOR PAYMENT
+              {remaining !== null ? (
+                <span className="tabular font-normal text-ink-300">
+                  {expired ? ' · timed out' : ` · ${mmss(remaining)} remaining`}
+                </span>
+              ) : null}
+            </>
+          ) : (
+            'PAYMENT FAILED'
+          )}
         </span>
-        <span className="tabular text-[9px] text-ink-400">
+        <span className="tabular shrink-0 text-[9px] text-ink-400">
           {payment.amount_paise != null ? formatPaise(payment.amount_paise) : ''}
         </span>
       </div>
@@ -311,11 +374,13 @@ function PaymentPanel({ payment }: { payment: EscalationPayment }) {
             target="_blank"
             rel="noreferrer noopener"
             className="tabular mt-1 block truncate text-[10px] text-accent underline decoration-accent/40 hover:decoration-accent"
-            title={payment.short_url}
+            title={`${payment.short_url}
+Opened automatically on approval; this link is the fallback if the popup was blocked.`}
           >
             {payment.short_url}
           </a>
           {payment.qr_url ? (
+            // Scannable from a phone, which is how this gets paid on stage.
             <img
               src={payment.qr_url}
               alt="Razorpay payment QR"
@@ -323,14 +388,27 @@ function PaymentPanel({ payment }: { payment: EscalationPayment }) {
             />
           ) : null}
           <div className="mt-0.5 text-[9px] text-ink-400">
-            Polling every 2s · 5 min timeout
+            {expired
+              ? 'Poller stopped. The link may still be payable.'
+              : 'Opened in a new tab · polling every 2s'}
           </div>
         </>
       ) : null}
 
       {captured && payment.razorpay_payment_id ? (
-        <div className="tabular mt-0.5 truncate text-[9px] text-ink-300">
-          {payment.razorpay_payment_id}
+        <div className="mt-0.5 flex items-baseline gap-1">
+          <span className="tabular min-w-0 flex-1 truncate text-[10px] text-state-allow">
+            {payment.razorpay_payment_id}
+          </span>
+          {payment.resolved_seq != null && onJumpToSeq ? (
+            <button
+              onClick={() => onJumpToSeq(sessionId, payment.resolved_seq as number)}
+              className="tabular shrink-0 text-[9px] text-ink-400 underline decoration-dotted hover:text-accent"
+              title="Open the ledger entry that recorded this capture"
+            >
+              seq {payment.resolved_seq}
+            </button>
+          ) : null}
         </div>
       ) : null}
 
@@ -348,6 +426,7 @@ function PaymentPanel({ payment }: { payment: EscalationPayment }) {
 
 function Card({
   group,
+  onJumpToSeq,
   pending,
   failures,
   onDecide,
@@ -356,6 +435,7 @@ function Card({
   pending: Record<string, 'approve' | 'reject'>
   failures: Record<string, string>
   onDecide: (escalation: Escalation, decision: 'approve' | 'reject') => void
+  onJumpToSeq?: (sessionId: string, seq: number) => void
 }) {
   const escalation = group.escalations[0]!
   const diff = group.diff ?? []
@@ -445,7 +525,11 @@ function Card({
               {/* An approved escalation with a live link has nothing left to
                   decide — it has something to pay. The buttons give way to the
                   link so the card shows the one action that is still open. */}
-              {e.payment ? <PaymentPanel payment={e.payment} /> : null}
+              {e.payment ? <PaymentPanel
+                  payment={e.payment}
+                  sessionId={e.session_id}
+                  onJumpToSeq={onJumpToSeq}
+                /> : null}
               {group.session_count > 1 ? (
                 <div
                   className="tabular truncate text-[9px] text-ink-400"
@@ -494,9 +578,12 @@ interface Props {
   /** When set, the rail shows only this session's escalations. */
   selectedId: string | null
   onClearFilter: () => void
+  /** Jump to a ledger entry from a captured payment. */
+  onJumpToSeq?: (sessionId: string, seq: number) => void
 }
 
 export function Escalations({
+  onJumpToSeq,
   groups,
   error,
   pending,
@@ -596,6 +683,7 @@ export function Escalations({
               pending={pending}
               failures={failures}
               onDecide={onDecide}
+              onJumpToSeq={onJumpToSeq}
             />
           ))}
         </div>

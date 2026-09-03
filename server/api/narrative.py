@@ -266,14 +266,39 @@ def build_narrative(session: SessionRecord, entries: list[LedgerEntry]) -> list[
     no_cart_seq = seq(EventType.NO_CART_BUILT)
     if no_cart_seq is not None:
         proposed = no_cart.get("proposed_skus") or []
+
+        # Say what was searched and why nothing matched.
+        #
+        # "no usable cart" on its own reads as a broken system. It is the
+        # opposite: the agent was shown the merchant's inventory, found nothing
+        # answering the request, and declined to invent a product rather than
+        # buying the nearest thing. Naming the search and its size is what
+        # turns a dead end into a visibly correct refusal.
+        search = payload(EventType.CATALOG_QUERIED)
+        search_seq = seq(EventType.CATALOG_QUERIED)
+        shown = search.get("result_count")
+        category = (search.get("filters") or {}).get("category")
+        asked = search.get("query")
+
+        if shown is not None:
+            add(
+                f"Searched {shown} {category + ' ' if category else ''}SKU"
+                f"{'' if shown == 1 else 's'}"
+                + (f", no match for “{asked}”" if asked else ", nothing matched"),
+                search_seq if search_seq is not None else no_cart_seq,
+                "bad",
+            )
+
         add(
-            f"Agent produced no usable cart — {no_cart.get('reason')}"
-            + (f" (proposed: {', '.join(proposed)})" if proposed else ""),
+            "The catalogue is the merchant's inventory, and the agent cannot "
+            "buy outside it — so it bought nothing."
+            + (f" It proposed {', '.join(proposed)}, which the catalogue "
+               f"does not stock." if proposed else ""),
             no_cart_seq,
             "bad",
         )
-        add("No policy decision was made: there was nothing to evaluate.",
-            no_cart_seq, "bad")
+        add("No money moved, and no policy decision was needed: there was "
+            "nothing to evaluate.", no_cart_seq, "neutral")
 
     # ── The gate ──────────────────────────────────────────────────────────────
     verdict = payload(EventType.POLICY_EVALUATED)

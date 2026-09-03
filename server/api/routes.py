@@ -38,7 +38,11 @@ from server.ledger.events import EventType
 from server.mandate.issuer import sign_intent
 from server.mandate.schema import Cart, CartItem
 from server.mandate.verifier import verify_cart_mandate, record_intent_jti
-from server.mcp.cart import CartBuildError, build_authoritative_cart
+from server.mcp.cart import (
+    CartBuildError,
+    build_authoritative_cart,
+    record_no_cart_built,
+)
 from server.mcp.catalog import get_authoritative_price
 from server.payments.saga import (
     SagaEscalated,
@@ -563,6 +567,16 @@ def _run_session_background(session_id: str) -> None:
                 merchant_id=settings.MERCHANT_ID,
             )
         except CartBuildError as exc:
+            # Record what the agent had to work with before closing. Without
+            # this the session shows a catalogue search, a model call, then a
+            # bare "no_cart" close — which reads as the system breaking rather
+            # than the system correctly declining to invent a product.
+            record_no_cart_built(
+                db, session_id,
+                reason=str(exc),
+                proposed_skus=skus,
+                rationale=proposal.get("rationale"),
+            )
             close_session(db, session, status="no_cart",
                           reason=f"no_cart: {exc}", final_total_paise=0)
             return
@@ -688,6 +702,12 @@ def list_escalations(status: str = "pending", db: Session = Depends(get_db)):
                 "amount_paise": payload.get("amount_paise"),
                 "state": "awaiting_capture",
                 "seq": entry.seq,
+                # What the countdown needs. Sent as the wait's start and length
+                # rather than as a remaining figure: a server-computed
+                # "4:32 left" is stale the moment it is serialised, and the poll
+                # is every 2s. The client subtracts from these each second.
+                "opened_at": entry.ts,
+                "timeout_seconds": settings.PAYMENT_CAPTURE_TIMEOUT_SECONDS,
             }
         elif entry.session_id in payment_by_session:
             # Later events resolve the wait; the link stops being actionable.

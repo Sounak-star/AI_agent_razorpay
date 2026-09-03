@@ -123,6 +123,10 @@ export interface EscalationPayment {
   detail?: string | null
   seq: number
   resolved_seq?: number
+  /** ISO timestamp of ORDER_CREATED — the moment the wait began. */
+  opened_at?: string
+  /** How long the poller will wait, in seconds. */
+  timeout_seconds?: number
 }
 
 export interface Escalation {
@@ -410,7 +414,15 @@ export const api = {
     escalationId: string,
     decision: 'approve' | 'reject',
   ) =>
-    request<{ status: string; escalation_id: string }>(
+    request<{
+      status: string
+      escalation_id: string
+      /** Present only when approval opened a live payment. */
+      payment_link_url?: string
+      qr_url?: string | null
+      awaiting_capture?: boolean
+      payment_error?: string
+    }>(
       `/sessions/${encodeURIComponent(sessionId)}/escalations/${encodeURIComponent(
         escalationId,
       )}/${decision}`,

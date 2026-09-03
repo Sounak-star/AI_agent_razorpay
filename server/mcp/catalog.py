@@ -110,7 +110,33 @@ def search_skus(
                 continue
         results.append(sku)
 
-    results = results[:limit]
+    # Truncate by taking a turn from each category rather than the first N in
+    # file order.
+    #
+    # The catalogue grew by appending, so plain slicing returned only the
+    # original SKUs and made every item added later invisible to an unfiltered
+    # search — a request for one of them came back "no match" while it sat in
+    # stock. Round-robin keeps every category represented no matter how the
+    # file is ordered or which end new products are added to.
+    if len(results) > limit:
+        by_category: dict[str, list[dict]] = {}
+        for sku in results:
+            by_category.setdefault(sku.get("category", ""), []).append(sku)
+
+        interleaved: list[dict] = []
+        rank = 0
+        while len(interleaved) < limit:
+            took = False
+            for bucket in by_category.values():
+                if rank < len(bucket):
+                    interleaved.append(bucket[rank])
+                    took = True
+                    if len(interleaved) == limit:
+                        break
+            if not took:
+                break
+            rank += 1
+        results = interleaved
 
     # Sanitize + wrap descriptions
     clean = []

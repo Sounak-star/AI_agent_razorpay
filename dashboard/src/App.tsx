@@ -139,7 +139,20 @@ export default function App() {
       })
 
       try {
-        await api.decideEscalation(escalation.session_id, escalation.id, decision)
+        const result = await api.decideEscalation(
+          escalation.session_id, escalation.id, decision,
+        )
+
+        // Open the payment link the moment approval produces one.
+        //
+        // Called directly in the click's own async chain so the browser still
+        // treats it as user-initiated; deferring it to a poll tick would make
+        // it an unattributed popup and get it blocked every time. It can still
+        // be blocked, which is why the URL and QR stay on the card — that is
+        // the fallback, not a duplicate.
+        if (result.payment_link_url) {
+          window.open(result.payment_link_url, '_blank', 'noopener,noreferrer')
+        }
         // Pull the authoritative state rather than patching it locally: the
         // decision also writes a ledger entry and moves the session status.
         escalations.refresh()
@@ -225,6 +238,7 @@ export default function App() {
           onDecide={handleDecide}
           selectedId={selectedId}
           onClearFilter={() => setSelectedId(null)}
+          onJumpToSeq={jumpToSeq}
         />
       </main>
     </div>

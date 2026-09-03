@@ -42,6 +42,51 @@ log = logging.getLogger(__name__)
 _STUB_PATH = Path(__file__).parent.parent.parent / "evals" / "fixtures" / "buyer_responses.json"
 
 
+def _shortlist(goal: str, category: str | None, limit: int = 40) -> list[dict]:
+    """
+    What the agent gets to look at: the catalogue, searched by the request.
+
+    Two passes over the same inventory, never anything outside it. First the
+    goal's own words are used as search terms, so a request for a grinder
+    actually surfaces the grinder; then a plain category sample tops the list up
+    so the agent still sees general context and can substitute sensibly.
+
+    Sampling alone was not enough once the catalogue passed a hundred SKUs. Any
+    fixed sample of 40 from 120 leaves two thirds unseen, and a product the
+    merchant genuinely stocks came back "no match" — an inventory gap reported
+    where there was only a retrieval gap.
+    """
+    from server.mcp.catalog import search_skus
+
+    # Short words carry no signal and match half the catalogue ("a", "to").
+    stop = {
+        "the", "and", "for", "with", "some", "any", "get", "buy", "need",
+        "want", "make", "from", "that", "this", "have", "please", "would",
+        "like", "good", "new", "our", "your", "one", "two",
+    }
+    terms = [
+        w.strip(".,!?;:'\"()").lower()
+        for w in (goal or "").split()
+    ]
+    terms = [w for w in terms if len(w) > 3 and w not in stop]
+
+    found: dict[str, dict] = {}
+    for term in terms[:8]:
+        for sku in search_skus(query=term, category=category, limit=limit):
+            found.setdefault(sku["id"], sku)
+        if len(found) >= limit:
+            break
+
+    # Top up with the ordinary sample so the agent is never shown only exact
+    # keyword hits — it still needs to see what else is on the shelf.
+    for sku in search_skus(category=category, limit=limit):
+        if len(found) >= limit:
+            break
+        found.setdefault(sku["id"], sku)
+
+    return list(found.values())[:limit]
+
+
 class BuyerAgent:
     """
     Orchestrates a buyer shopping session.
@@ -159,7 +204,7 @@ class BuyerAgent:
 
         # Give the LLM the catalog to browse
         category = self.categories[0] if len(self.categories) == 1 else None
-        catalog_sample = search_skus(category=category, limit=20)
+        catalog_sample = _shortlist(self.goal, category)
 
         # Record what the agent was shown before it chose. Without this the
         # ledger jumps from intent straight to a cart, and a reader cannot tell
