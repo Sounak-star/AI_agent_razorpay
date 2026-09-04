@@ -221,7 +221,7 @@ export function Ledger({
 
       {/* Column heads */}
       <div
-        className={`${COLUMNS} shrink-0 items-center border-b border-ink-700 bg-ink-850 px-4 py-2 t-meta font-semibold tracking-[0.1em] text-ink-400 uppercase`}
+        className={`${COLUMNS} shrink-0 items-center border-b border-ink-700 bg-ink-850 px-3 py-1.5 t-meta font-semibold tracking-[0.1em] text-ink-400 uppercase`}
       >
         <span />
         <span className="text-right">seq</span>
@@ -268,7 +268,7 @@ export function Ledger({
                     }
                   }}
                   title="Click to expand: full payload, hash inputs, and an independent re-derivation"
-                  className={`${COLUMNS} t-transition t-focus min-h-[34px] cursor-pointer items-center border-b border-ink-700/60 px-4 py-1 t-body ${
+                  className={`${COLUMNS} t-transition t-focus min-h-[28px] cursor-pointer items-center border-b border-ink-700/60 px-3 py-0.5 t-meta ${
                     isBreak
                       ? 'border-state-deny/50 bg-state-deny/20'
                       : expanded

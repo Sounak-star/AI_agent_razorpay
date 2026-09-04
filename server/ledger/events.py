@@ -94,6 +94,13 @@ class EventType(str, Enum):
     # key on the same endpoint cannot help with either.
     LLM_KEY_FAILOVER = "LLM_KEY_FAILOVER"
 
+    # The model call failed for a reason that is neither a timeout nor a quota:
+    # the provider was unreachable, rejected the request, or answered with
+    # something that could not be parsed. Recorded so an errored session names
+    # its cause instead of closing with a bare "error" and leaving a reader to
+    # guess which of the three it was.
+    LLM_CALL_FAILED = "LLM_CALL_FAILED"
+
     # ── Terminal ──────────────────────────────────────────────────────────────
     SESSION_CLOSED = "SESSION_CLOSED"
 

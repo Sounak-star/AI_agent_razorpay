@@ -88,22 +88,35 @@ export function SessionStream({
                 title={`${s.session_id}\nbuyer: ${s.buyer_id}\nbudget: ${formatPaise(
                   s.budget_paise,
                 )}\nevents: ${s.event_count}`}
-                className={`t-transition t-focus block w-full border-b border-ink-700 px-4 py-2 text-left ${
+                className={`t-transition t-focus block w-full border-b border-ink-700 px-3 py-0.5 text-left ${
                   selected
                     // The accent is the left edge, not a wash across the card.
                     // A filled row competed with the status chip inside it and
                     // tinted every value it contained.
-                    ? 'border-l-2 border-l-accent pl-[14px] bg-ink-800/40'
-                    : 'border-l-2 border-l-transparent pl-[14px] hover:bg-ink-800'
+                    ? 'border-l-2 border-l-accent pl-[10px] bg-ink-800/40'
+                    : 'border-l-2 border-l-transparent pl-[10px] hover:bg-ink-800'
                 }`}
               >
-                <div className="flex items-center justify-between gap-1">
-                  <span
-                    className={`tabular t-body ${
-                      selected ? 'text-ink-050' : 'text-ink-300'
-                    }`}
-                  >
-                    {shortId(s.session_id)}
+                {/* Two lines, not three.
+
+                    Every field the card carried is still here; the id and the
+                    buyer share the top line, and the offer chip moves next to
+                    the elapsed time. Three 16px lines plus padding made a 75px
+                    card, and eight of those need 600px of a rail that has
+                    about 350 — so the rail showed three sessions and the
+                    operator scrolled to find anything. */}
+                <div className="flex items-center justify-between gap-2">
+                  <span className="flex min-w-0 items-baseline gap-1.5">
+                    <span
+                      className={`tabular shrink-0 t-meta ${
+                        selected ? 'text-ink-050' : 'text-ink-300'
+                      }`}
+                    >
+                      {shortId(s.session_id)}
+                    </span>
+                    <span className="truncate t-meta text-ink-400">
+                      {s.buyer_id}
+                    </span>
                   </span>
                   <StatusChip
                     status={
@@ -117,17 +130,15 @@ export function SessionStream({
                   />
                 </div>
 
-                <div className="mt-2 truncate t-body text-ink-100">
-                  {s.goal ?? <span className="text-ink-400">(no goal)</span>}
-                </div>
-
-                <div className="mt-2 flex items-center justify-between gap-2 t-meta text-ink-400">
-                  <span className="truncate">{s.buyer_id}</span>
-                  <span className="flex shrink-0 items-center gap-1">
+                <div className="mt-0.5 flex items-baseline justify-between gap-2">
+                  <span className="min-w-0 flex-1 truncate t-meta text-ink-100">
+                    {s.goal ?? <span className="text-ink-400">(no goal)</span>}
+                  </span>
+                  <span className="flex shrink-0 items-center gap-1 t-meta text-ink-400">
                     {s.offer && OFFER_CHIP[s.offer] ? (
                       <span
                         title={`Upsell ${s.offer}`}
-                        className={`rounded-[2px] border px-2 py-[2px] t-meta font-semibold ${
+                        className={`rounded-[2px] border px-1 t-meta font-semibold ${
                           OFFER_CHIP[s.offer]!.className
                         }`}
                       >
@@ -137,6 +148,7 @@ export function SessionStream({
                     <span className="tabular">{formatElapsed(s.elapsed_ms)}</span>
                   </span>
                 </div>
+
               </button>
             )
           })}

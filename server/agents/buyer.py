@@ -382,7 +382,38 @@ class BuyerAgent:
             )
             model = used_cfg.model
         except Exception as exc:                                  # noqa: BLE001
-            if type(exc).__name__ != "RateLimitError":
+            kind = type(exc).__name__
+
+            # A failed model call has to leave a trace of *why*.
+            #
+            # Only the rate limit was recorded before, so a timeout closed the
+            # session as a bare "error" with the cause buried in the closing
+            # entry's reason string, which the narrative never read. The
+            # operator saw "Considered 28 SKUs, chose 0 / Session closed
+            # (error)" and had nothing to act on.
+            if kind != "RateLimitError":
+                waited_ms = int((time.monotonic() - started) * 1000)
+                event = (
+                    EventType.LLM_TIMEOUT if kind == "APITimeoutError"
+                    else EventType.LLM_CALL_FAILED
+                )
+                db = SessionLocal()
+                try:
+                    append(db, session_id, event, {
+                        "model": model,
+                        "purpose": "buyer_propose_cart",
+                        "error_type": kind,
+                        "detail": str(exc)[:300],
+                        "waited_ms": waited_ms,
+                        "timeout_seconds": settings.LLM_TIMEOUT_SECONDS,
+                        "keys_tried": len(resolve_all()),
+                        "catalog_items_shown": len(catalog_sample),
+                        # Nothing was proposed, so nothing downstream ran.
+                        "cart_proposed": False,
+                    })
+                finally:
+                    db.close()
+                log.error("[buyer_agent] %s after %dms: %s", kind, waited_ms, exc)
                 raise
             headers = getattr(getattr(exc, "response", None), "headers", {}) or {}
             rate = LLMRateLimited(

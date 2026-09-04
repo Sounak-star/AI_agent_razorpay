@@ -20,6 +20,10 @@ from server.ledger.events import EventType
 EVENT_LABELS: dict[str, str] = {
     EventType.INTENT_SIGNED.value: "Spending limit authorised",
     EventType.CATALOG_QUERIED.value: "Agent searched the catalogue",
+    EventType.LLM_TIMEOUT.value: "Model call timed out",
+    EventType.LLM_RATE_LIMITED.value: "Model provider refused the call",
+    EventType.LLM_CALL_FAILED.value: "Model call failed",
+    EventType.LLM_KEY_FAILOVER.value: "Switched to a spare provider key",
     EventType.QUOTE_ISSUED.value: "Merchant quoted a price",
     EventType.CART_BUILT.value: "Agent assembled a cart",
     EventType.POLICY_EVALUATED.value: "Policy check",
@@ -260,6 +264,58 @@ def build_narrative(session: SessionRecord, entries: list[LedgerEntry]) -> list[
                 "total_paise": cart.get("total_paise"),
             } if cart_items else None,
         )
+
+    # ── The model call itself failed ─────────────────────────────────────────
+    #
+    # Same standard as no_cart: name the failure and its cause. An errored
+    # session used to read "Considered 28 SKUs, chose 0 / Session closed
+    # (error)", which tells a reader that something broke and nothing about
+    # what. The cause was on the ledger the whole time, in the closing entry's
+    # reason string, and nothing surfaced it.
+    _FAILURE_EVENTS = (
+        EventType.LLM_TIMEOUT,
+        EventType.LLM_RATE_LIMITED,
+        EventType.LLM_CALL_FAILED,
+    )
+    failure = next(
+        ((e, by_type[e.value]) for e in _FAILURE_EVENTS if e.value in by_type),
+        None,
+    )
+    if failure is not None:
+        event_type, entry = failure
+        f = entry.payload or {}
+        waited = f.get("waited_ms")
+        waited_text = f" after {waited / 1000:.1f}s" if isinstance(waited, (int, float)) else ""
+
+        if event_type is EventType.LLM_TIMEOUT:
+            headline = (
+                f"Model call timed out{waited_text} "
+                f"(limit {f.get('timeout_seconds', '?')}s)."
+            )
+        elif event_type is EventType.LLM_RATE_LIMITED:
+            keys = f.get("keys_tried") or 1
+            headline = (
+                f"Model provider refused the call: rate limit reached on "
+                f"{keys} key{'' if keys == 1 else 's'}"
+                + (f", resets in {f.get('resets_in')}" if f.get("resets_in") else "")
+                + "."
+            )
+        else:
+            headline = (
+                f"Model call failed{waited_text}: "
+                f"{f.get('error_type') or 'unknown error'}."
+            )
+
+        add(headline, entry.seq, "bad")
+        add(
+            "No cart was proposed, so no policy decision was made and no money "
+            "moved.",
+            entry.seq,
+            "neutral",
+        )
+        detail = f.get("detail")
+        if detail:
+            add(f"Provider said: {detail[:160]}", entry.seq, "neutral")
 
     # ── The agent came back with nothing ─────────────────────────────────────
     no_cart = payload(EventType.NO_CART_BUILT)
@@ -547,6 +603,27 @@ def build_narrative(session: SessionRecord, entries: list[LedgerEntry]) -> list[
             add(f"Session closed in {duration}, buyer made whole.", closed_seq, "good")
         elif state == "failed":
             add(f"No money moved. Session closed in {duration}.", closed_seq, "bad")
+        elif state in ("error", "rate_limited") and failure is None:
+            # The cause was recorded on the closing entry but nowhere else.
+            #
+            # Sessions that errored before the failure events existed carry
+            # their reason only here, as "agent_error: APITimeoutError: Request
+            # timed out." Reading it back is the difference between a session
+            # that explains itself and one that says "error" and stops.
+            raw = str(closed.get("reason") or "").strip()
+            cause = raw.split(":", 1)[1].strip() if raw.startswith("agent_error:") else raw
+            add(
+                f"Session failed in {duration}"
+                + (f" — {cause[:160]}" if cause else " with no recorded cause"),
+                closed_seq,
+                "bad",
+            )
+            add(
+                "No cart was proposed, so no policy decision was made and no "
+                "money moved.",
+                closed_seq,
+                "neutral",
+            )
         else:
             add(f"Session closed ({state}) in {duration}.", closed_seq)
 

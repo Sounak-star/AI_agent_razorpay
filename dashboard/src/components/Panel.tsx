@@ -24,7 +24,7 @@ export function Panel({ title, caption, aside, children, className = '' }: Panel
     <section
       className={`flex min-h-0 min-w-0 flex-col border border-ink-700 bg-ink-900 ${className}`}
     >
-      <header className="shrink-0 border-b border-ink-700 bg-ink-850 px-4 pt-2 pb-2">
+      <header className="shrink-0 border-b border-ink-700 bg-ink-850 px-3 pt-1.5 pb-1.5">
         <div className="flex items-center justify-between gap-2">
           <h2 className="shrink-0 t-body font-semibold tracking-[0.12em] text-ink-100 uppercase">
             {title}
@@ -34,12 +34,12 @@ export function Panel({ title, caption, aside, children, className = '' }: Panel
           ) : null}
         </div>
         {caption ? (
-          <p className="mt-1 truncate t-meta text-ink-400" title={caption}>
+          <p className="mt-1 t-meta leading-[14px] text-ink-400" title={caption}>
             {caption}
           </p>
         ) : null}
       </header>
-      <div className="flex min-h-0 flex-1 flex-col pt-2">{children}</div>
+      <div className="flex min-h-0 flex-1 flex-col pt-1.5">{children}</div>
     </section>
   )
 }

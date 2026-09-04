@@ -42,7 +42,7 @@ function Cell({
   return (
     <div
       title={title}
-      className={`flex min-w-0 flex-col justify-center gap-1 overflow-hidden border-r border-ink-700 px-4 py-2 ${className}`}
+      className={`flex min-w-0 flex-col justify-center gap-1 overflow-hidden border-r border-ink-700 px-3 py-2 ${className}`}
     >
       <div className="shrink-0 truncate t-meta font-semibold tracking-[0.14em] text-ink-400 uppercase">
         {label}
@@ -205,8 +205,8 @@ export function MetricsStrip({
       <div
         className={`mt-1.5 grid h-[80px] shrink-0 border border-ink-700 bg-ink-900 ${
           view === 'operator'
-            ? 'grid-cols-[132px_minmax(196px,1fr)_minmax(210px,240px)]'
-            : 'grid-cols-[132px_minmax(196px,1fr)_196px_178px_150px]'
+            ? 'grid-cols-[150px_minmax(196px,1fr)_minmax(210px,240px)]'
+            : 'grid-cols-[150px_minmax(190px,1fr)_186px_172px_146px]'
         }`}
       >
         {/* ── Sessions ── */}

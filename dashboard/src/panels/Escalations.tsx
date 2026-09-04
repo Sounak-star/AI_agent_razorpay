@@ -168,7 +168,7 @@ function EvidenceTable({ evidence }: { evidence: Evidence }) {
       {evidence.rows.map((row) => (
         <div
           key={row.label}
-          className={`grid grid-cols-[124px_1fr] gap-1 border-b border-ink-700/60 px-1.5 py-0.5 t-meta last:border-b-0 ${
+          className={`grid grid-cols-[134px_1fr] gap-1 border-b border-ink-700/60 px-1.5 py-0.5 t-meta last:border-b-0 ${
             row.flag ? 'bg-state-escalate/15' : ''
           }`}
         >
@@ -180,7 +180,7 @@ function EvidenceTable({ evidence }: { evidence: Evidence }) {
             {row.label}
           </span>
           <span
-            className={`min-w-0 truncate ${
+            className={`min-w-0 break-words ${
               row.flag ? 'font-semibold text-state-escalate' : 'text-ink-300'
             }`}
             title={String(row.value)}
