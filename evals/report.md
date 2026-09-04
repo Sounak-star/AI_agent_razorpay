@@ -1,6 +1,6 @@
 # Tollgate Eval Report
 
-Generated: 2026-09-03T06:37:09.169032+00:00  |  Mode: FIXTURE REPLAY  |  Elapsed: 2.3s
+Generated: 2026-09-04T07:18:34.968725+00:00  |  Mode: FIXTURE REPLAY  |  Elapsed: 4.7s
 
 > [!IMPORTANT]
 > All replayed legs use recorded IDs from `evals/fixtures/razorpay_capture.json`.
@@ -24,7 +24,7 @@ errored before reaching a verdict.
 | Scenario | Verdict | Reason | Expected | Matched |
 |----------|---------|--------|----------|---------|
 
-## Adversarial Attack Results (15 attacks)
+## Adversarial Attack Results (16 attacks)
 
 | Attack | Expected | Recorded | State |
 |--------|----------|--------|------|
@@ -43,8 +43,9 @@ errored before reaching a verdict.
 | `13_mandate_hash_mismatch.json` | DENY/MANDATE_INVALID ~cart_hash_mismatch | DENY/MANDATE_INVALID ~cart_hash_mismatch | ✅ |
 | `14_mandate_forged.json` | DENY/MANDATE_INVALID ~jwt_error | DENY/MANDATE_INVALID ~jwt_error: Invalid header string: 'utf-8' codec can't decode byte 0x9e in position 0: invalid start byte | ✅ |
 | `15_mandate_unknown_intent.json` | DENY/MANDATE_INVALID ~intent_jti_not_found | DENY/MANDATE_INVALID ~intent_jti_not_found | ✅ |
+| `16_injection_via_agent_selection.json` | ALLOW/ALLOW | exception | ⚠️ |
 
-**15/15 attacks correctly handled** — 0 failed, 0 errored (an error means nothing was tested)
+**15/16 attacks correctly handled** — 0 failed, 1 errored (an error means nothing was tested)
 
 ## Architectural Security Notes
 

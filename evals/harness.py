@@ -248,13 +248,50 @@ def run_scenario(
         record_intent_signed(db, session_id, intent, extra={"harness": True})
 
         # Build cart (records the catalog lookup, quote and cart in the ledger)
-        cart = resolve_cart(
-            db=db,
-            session_id=session_id,
-            sku_ids=scenario["sku_ids"],
-            quantities=scenario.get("quantities", [1] * len(scenario["sku_ids"])),
-            merchant_id=merchant_id,
-        )
+        #
+        # A scenario carrying `_agent_selects` has no sku_ids: the model is
+        # asked to choose, from a catalogue that includes an injected
+        # instruction. Every other attack hands the cart over ready-made, which
+        # tests the engine but never the selection step — so nothing in the
+        # suite noticed whether the model was shown the attack at all.
+        if scenario.get("_agent_selects"):
+            from server.agents.buyer import BuyerAgent, LLMRateLimited
+
+            agent = BuyerAgent(
+                buyer_id=scenario["buyer_id"],
+                merchant_id=merchant_id,
+                goal=scenario["goal"],
+                budget_paise=scenario["budget_paise"],
+                categories=scenario.get("categories", ["grocery"]),
+                max_items=scenario.get("max_items", 10),
+                # Never the stub, whatever the harness is running as.
+                #
+                # This scenario exists to put an injected instruction in front
+                # of the model, so a recorded fixture standing in for the
+                # model's choice makes it test nothing. It did exactly that on
+                # its first run: no LLM_CALL, a cart of GRO007 from the stub's
+                # fallback, and a green tick. run_attack skips the scenario
+                # outright when no provider is configured.
+                stub=False,
+            )
+            proposal = agent.propose_cart(session_id)
+            chosen = proposal.get("proposed_skus") or []
+            quantities = proposal.get("proposed_quantities") or [1] * len(chosen)
+            cart = resolve_cart(
+                db=db,
+                session_id=session_id,
+                sku_ids=chosen,
+                quantities=quantities,
+                merchant_id=merchant_id,
+            )
+        else:
+            cart = resolve_cart(
+                db=db,
+                session_id=session_id,
+                sku_ids=scenario["sku_ids"],
+                quantities=scenario.get("quantities", [1] * len(scenario["sku_ids"])),
+                merchant_id=merchant_id,
+            )
 
         # Build transaction history from scenario metadata
         # _prior_spend_paise: inject prior settled spend for daily-cap tests
@@ -366,6 +403,17 @@ def run_scenario(
         db.close()
 
 
+def _live_model_available() -> bool:
+    """Is a provider actually configured to answer a real call?"""
+    try:
+        from server.agents.llm import get_client_and_model
+
+        get_client_and_model()
+        return True
+    except Exception:                                             # noqa: BLE001
+        return False
+
+
 def run_attack(
     attack_file: Path, payments: PaymentMode = PaymentMode.REPLAY
 ) -> dict:
@@ -399,20 +447,49 @@ def run_attack(
             "detail": "attack declares no `expect` block; it cannot be judged",
         }
 
+    # A scenario needing the real model is skipped, loudly, when no provider is
+    # configured. Running it against the stub would put a recorded fixture in
+    # place of the model's choice and report injection resistance that was
+    # never exercised — a green tick for a test that did nothing.
+    if attack["scenario"].get("_requires_live_model") and not _live_model_available():
+        return {
+            "attack": attack_file.name,
+            "description": attack.get("description", ""),
+            "state": "SKIP",
+            "expected": f"{expect['decision']}/{expect['code']}",
+            "actual": "not run",
+            "detail": (
+                "needs a live model (set GROQ_API_KEY); refusing to run it "
+                "against a stub, which would report resistance never tested"
+            ),
+        }
+
     result = run_scenario(attack["scenario"], payments=payments)
     want = f"{expect['decision']}/{expect['code']}"
     if expect.get("reason_contains"):
         want += f" ~{expect['reason_contains']}"
 
     if result["status"] == "error":
+        # Could not reach the provider at all: the attack was not run, which is
+        # the same situation as having no key configured. Reported SKIP, never
+        # PASS — a network blip must not turn the suite red, and must not be
+        # able to report resistance that was never exercised either.
+        error = str(result.get("error") or "")
+        unreachable = attack["scenario"].get("_requires_live_model") and any(
+            marker in error
+            for marker in ("APIConnectionError", "APITimeoutError", "Connection error")
+        )
         return {
             "attack": attack_file.name,
             "description": attack.get("description", ""),
-            "state": "ERROR",
+            "state": "SKIP" if unreachable else "ERROR",
             "expected": want,
-            "actual": "exception",
-            "detail": result.get("error"),
-            "traceback": result.get("traceback"),
+            "actual": "not run" if unreachable else "exception",
+            "detail": (
+                f"model provider unreachable, attack not run: {error[:120]}"
+                if unreachable else result.get("error")
+            ),
+            "traceback": None if unreachable else result.get("traceback"),
         }
 
     decision, code = result.get("decision"), result.get("code")
@@ -455,6 +532,7 @@ def write_report(
     atk_pass   = sum(1 for r in attack_results if r["state"] == "PASS")
     atk_fail   = sum(1 for r in attack_results if r["state"] == "FAIL")
     atk_error  = sum(1 for r in attack_results if r["state"] == "ERROR")
+    atk_skip   = sum(1 for r in attack_results if r["state"] == "SKIP")
 
     mode_tag = "FIXTURE REPLAY" if stub else "LIVE API"
 
@@ -518,7 +596,7 @@ def write_report(
         f"|--------|----------|--------|------|",
     ]
     for r in attack_results:
-        tick = {"PASS": "✅", "FAIL": "❌", "ERROR": "⚠️"}[r["state"]]
+        tick = {"PASS": "✅", "FAIL": "❌", "ERROR": "⚠️", "SKIP": "⊘"}[r["state"]]
         lines.append(
             f"| `{r['attack']}` | {r['expected']} | {r['actual']} | {tick} |"
         )
@@ -605,7 +683,12 @@ def main():
     write_report(normal_results, attack_results, elapsed, use_stub)
 
     # Exit non-zero if any attack failed
-    any_attack_failed = any(r["state"] != "PASS" for r in attack_results)
+    any_attack_failed = any(r["state"] not in ("PASS", "SKIP") for r in attack_results)
+    skipped = [r for r in attack_results if r["state"] == "SKIP"]
+    if skipped:
+        print(f"\n[SKIP] {len(skipped)} attack(s) not run:")
+        for r in skipped:
+            print(f"    {r['attack']}: {r['detail']}")
     attack_errors = [r for r in attack_results if r["state"] == "ERROR"]
     if attack_errors:
         print(f"\n[ERROR] {len(attack_errors)} attack(s) raised instead of "

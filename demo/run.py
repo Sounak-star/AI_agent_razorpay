@@ -96,7 +96,7 @@ def setup():
 
 def demo_live(args):
     """Full live demo with real Razorpay and a live LLM."""
-    from server.agents.buyer import BuyerAgent
+    from server.agents.buyer import BuyerAgent, LLMRateLimited
 
     print("=" * 60)
     print("  TOLLGATE — Agentic Commerce Rail  (LIVE DEMO)")
@@ -152,6 +152,18 @@ def demo_live(args):
         print(f"\n[AI] Asking AI to propose a cart for: '{goal}'...")
         try:
             proposal = agent.propose_cart(session_id)
+        except LLMRateLimited as exc:
+            # A provider quota, not a fault in this system. Its own terminal
+            # state so the trail does not read as a failed decision.
+            print(f"\n[LIMIT] Provider refused the call: {exc}")
+            print(f"        token budget resets in {exc.reset or 'unknown'}")
+            close_session(
+                db, session,
+                status="rate_limited",
+                reason=f"model provider rate limit: {str(exc)[:160]}",
+            )
+            print("   Session closed as rate_limited — LLM_RATE_LIMITED is on the ledger.")
+            return
         except Exception as exc:
             print(f"\n[FAIL] Agent could not propose a cart: {type(exc).__name__}: {exc}")
             close_session(

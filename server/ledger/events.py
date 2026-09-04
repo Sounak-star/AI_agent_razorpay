@@ -79,6 +79,13 @@ class EventType(str, Enum):
     # model that simply had nothing to suggest.
     LLM_TIMEOUT = "LLM_TIMEOUT"
 
+    # The provider refused the call outright because the account is over its
+    # rate limit. Distinct from a timeout: nothing was computed, the request
+    # never ran, and the fix is to wait or to send less — not to try harder.
+    # Recorded rather than retried, because a silent retry against a token
+    # ceiling turns one refusal into several and hides the real constraint.
+    LLM_RATE_LIMITED = "LLM_RATE_LIMITED"
+
     # ── Terminal ──────────────────────────────────────────────────────────────
     SESSION_CLOSED = "SESSION_CLOSED"
 

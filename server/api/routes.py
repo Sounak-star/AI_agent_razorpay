@@ -501,7 +501,7 @@ def _run_session_background(session_id: str) -> None:
     session open forever would be reintroducing the stale-session problem
     through a new door.
     """
-    from server.agents.buyer import BuyerAgent
+    from server.agents.buyer import BuyerAgent, LLMRateLimited
     from server.db.session import SessionLocal
     from server.mandate.schema import IntentMandate
     from server.payments.saga import (
@@ -556,7 +556,18 @@ def _run_session_background(session_id: str) -> None:
             estimate_paise=int(session.budget_paise * 0.85),
             stub=settings.STUB_MODE,
         )
-        proposal = agent.propose_cart(session_id)
+        try:
+            proposal = agent.propose_cart(session_id)
+        except LLMRateLimited as exc:
+            # The provider refused; nothing was proposed and nothing was
+            # decided. Its own terminal state, so this is never read as the
+            # policy engine having rejected something.
+            close_session(
+                db, session, status="rate_limited",
+                reason=f"model provider rate limit: {exc}",
+                final_total_paise=0,
+            )
+            return
 
         skus = proposal.get("proposed_skus") or []
         qtys = proposal.get("proposed_quantities") or [1] * len(skus)

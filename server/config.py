@@ -34,7 +34,10 @@ class Settings(BaseSettings):
     LLM_PROVIDER: str = ""            # "groq" | "xai" | "" (auto)
     # Hard deadline on any model call. Observed Groq latency reached 26.7s on
     # an upsell suggestion; a slow model must never hold a payment open.
-    LLM_TIMEOUT_SECONDS: float = 8.0
+    # 8s was tuned when the agent saw 20 short SKUs. The catalogue is 120 now
+    # and a cart proposal carries far more context, measured at 3.1-4.3s and
+    # spiking past 8s — which surfaced as APITimeoutError mid-demo.
+    LLM_TIMEOUT_SECONDS: float = 20.0
     LLM_MODEL: str = ""               # blank = the provider's default
 
     # Published rate for LLM_MODEL, in USD per million tokens. Left at 0 the

@@ -33,6 +33,13 @@ const STATUS_STYLES: Record<string, { label: string; className: string }> = {
   // Owed a refund the provider deferred until settlement. Dashed, because it
   // is not finished: the buyer has not been repaid and a retry is still due.
   // It must not wear the REFUNDED chip — that would say the money went back.
+  // The model provider refused the call outright. Not a verdict and not a
+  // fault in the engine, so it wears neither the DENIED nor the ERROR chip:
+  // nothing was proposed, nothing was decided, no money was involved.
+  rate_limited: {
+    label: 'RATE LIMITED',
+    className: 'border-ink-600 text-ink-300',
+  },
   refund_pending: {
     label: 'REFUND DUE',
     className:

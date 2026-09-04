@@ -44,13 +44,16 @@ AUTHORISING_EVENTS = frozenset({
 # "refund_failed" is present — that one is over.
 TERMINAL_SESSION_STATUSES = frozenset(
     {"captured", "refunded", "failed", "refund_failed", "error", "rejected",
-     "stale", "no_cart"}
+     "stale", "no_cart", "rate_limited"}
 )
 
 # A session that actually reached an outcome. "stale" is excluded: it never
 # finished, so folding it into a mean duration would misreport a hang as a
 # completion time.
 SETTLED_SESSION_STATUSES = frozenset(
+    # rate_limited is excluded on purpose: the session never reached a verdict,
+    # so folding it into settled outcomes would report a provider quota as a
+    # decision this system made.
     {"captured", "refunded", "failed", "refund_failed", "error", "rejected"}
 )
 
