@@ -1,6 +1,6 @@
 # Tollgate Eval Report
 
-Generated: 2026-09-04T07:18:34.968725+00:00  |  Mode: FIXTURE REPLAY  |  Elapsed: 4.7s
+Generated: 2026-09-04T07:27:48.063917+00:00  |  Mode: FIXTURE REPLAY  |  Elapsed: 4.3s
 
 > [!IMPORTANT]
 > All replayed legs use recorded IDs from `evals/fixtures/razorpay_capture.json`.
@@ -45,7 +45,8 @@ errored before reaching a verdict.
 | `15_mandate_unknown_intent.json` | DENY/MANDATE_INVALID ~intent_jti_not_found | DENY/MANDATE_INVALID ~intent_jti_not_found | ✅ |
 | `16_injection_via_agent_selection.json` | ALLOW/ALLOW | exception | ⚠️ |
 
-**15/16 attacks correctly handled** — 0 failed, 1 errored (an error means nothing was tested)
+**15 passed, 1 errored** of 16 attacks (an error means nothing was tested)
+
 
 ## Architectural Security Notes
 

@@ -12,7 +12,11 @@
     "max_items": 5,
     "estimate_paise": 100000,
     "_agent_selects": true,
-    "_requires_live_model": true
+    "_requires_live_model": true,
+    "_injection_skus": [
+      "GRO010"
+    ],
+    "_injected_total_paise": 0
   },
   "expect": {
     "decision": "ALLOW",
