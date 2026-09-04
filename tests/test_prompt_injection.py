@@ -23,6 +23,7 @@ from pathlib import Path
 
 import pytest
 
+from server.config import settings
 from server.agents.buyer import _shortlist, build_propose_prompt
 from server.mcp.catalog import get_all_skus
 
@@ -147,4 +148,124 @@ class TestPromptSize:
         assert approx_tokens < 2_000, (
             f"prompt is roughly {approx_tokens:.0f} tokens; at this size the "
             f"8,000/min ceiling allows too few proposals to run a demo"
+        )
+
+
+# ── Key failover ──────────────────────────────────────────────────────────────
+
+class TestKeyFailover:
+    """
+    A second provider key is extra capacity, not a retry.
+
+    Each Groq key carries its own tokens-per-minute quota, which is the only
+    reason moving to one is legitimate where retrying the same key is not.
+    That distinction has to hold in the code, so these tests pin both halves:
+    failover happens where another key can help, and does not happen where it
+    cannot.
+    """
+
+    def test_failover_only_on_errors_another_key_can_fix(self):
+        from server.agents.llm import FAILOVER_ON
+
+        assert "RateLimitError" in FAILOVER_ON
+        assert "AuthenticationError" in FAILOVER_ON
+        # Endpoint- and network-level failures are identical for every key;
+        # cycling through them multiplies the wait and changes nothing.
+        assert "APITimeoutError" not in FAILOVER_ON
+        assert "APIConnectionError" not in FAILOVER_ON
+
+    def test_duplicate_keys_are_not_counted_as_extra_capacity(self, monkeypatch):
+        from server.agents import llm as L
+
+        monkeypatch.setattr(settings, "GROQ_API_KEY", "gsk_same")
+        monkeypatch.setattr(settings, "GROQ_API_KEYS_FALLBACK", "gsk_same, gsk_other")
+        monkeypatch.setattr(settings, "LLM_PROVIDER", "groq")
+
+        configs = L.resolve_all()
+        keys = [c.api_key for c in configs]
+        assert keys == ["gsk_same", "gsk_other"], (
+            "a repeated key is the same quota, so it is not a second attempt"
+        )
+
+    def test_key_fingerprint_never_leaks_the_key(self):
+        from server.agents.llm import key_fingerprint
+
+        secret = "gsk_averysecretkeyvalue123456"
+        fp = key_fingerprint(secret)
+        assert secret not in fp
+        assert secret[-6:] not in fp        # not even a tail of it
+        assert fp == key_fingerprint(secret)          # stable
+        assert fp != key_fingerprint(secret + "x")    # distinguishes keys
+
+    def test_exhausting_every_key_still_raises_rate_limited(self, monkeypatch):
+        """
+        Failover must not be able to turn an exhausted pool into a silent
+        success or a generic error. The terminal state survives.
+        """
+        from server.agents import llm as L
+
+        class RateLimitError(Exception):
+            pass
+
+        calls = {"n": 0}
+
+        def always_limited(**kwargs):
+            calls["n"] += 1
+            raise RateLimitError("over quota")
+
+        monkeypatch.setattr(settings, "GROQ_API_KEY", "gsk_a")
+        monkeypatch.setattr(settings, "GROQ_API_KEYS_FALLBACK", "gsk_b")
+        monkeypatch.setattr(settings, "LLM_PROVIDER", "groq")
+        monkeypatch.setattr(
+            L, "_client_for",
+            lambda cfg: type("C", (), {
+                "chat": type("Ch", (), {
+                    "completions": type("Co", (), {"create": staticmethod(always_limited)})
+                })
+            })(),
+        )
+
+        moved = []
+        with pytest.raises(RateLimitError):
+            L.complete_with_failover(
+                messages=[{"role": "user", "content": "hi"}],
+                max_tokens=5,
+                on_failover=lambda cfg, err, nxt: moved.append(nxt),
+            )
+
+        assert calls["n"] == 2, "each key tried exactly once, none twice"
+        assert moved == [1], "the one move between keys was reported"
+
+    def test_a_non_failover_error_stops_at_the_first_key(self, monkeypatch):
+        from server.agents import llm as L
+
+        class APITimeoutError(Exception):
+            pass
+
+        calls = {"n": 0}
+
+        def always_timeout(**kwargs):
+            calls["n"] += 1
+            raise APITimeoutError("timed out")
+
+        monkeypatch.setattr(settings, "GROQ_API_KEY", "gsk_a")
+        monkeypatch.setattr(settings, "GROQ_API_KEYS_FALLBACK", "gsk_b")
+        monkeypatch.setattr(settings, "LLM_PROVIDER", "groq")
+        monkeypatch.setattr(
+            L, "_client_for",
+            lambda cfg: type("C", (), {
+                "chat": type("Ch", (), {
+                    "completions": type("Co", (), {"create": staticmethod(always_timeout)})
+                })
+            })(),
+        )
+
+        with pytest.raises(APITimeoutError):
+            L.complete_with_failover(
+                messages=[{"role": "user", "content": "hi"}], max_tokens=5
+            )
+
+        assert calls["n"] == 1, (
+            "a timeout is the same for every key; trying the next one only "
+            "doubles the wait before reporting the same failure"
         )

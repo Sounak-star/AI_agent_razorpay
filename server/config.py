@@ -30,6 +30,12 @@ class Settings(BaseSettings):
     # Groq and xAI are both OpenAI-compatible; see server/agents/llm.py.
     # Leave LLM_PROVIDER blank to infer from whichever key is set.
     GROQ_API_KEY: str = ""
+    # Additional Groq keys, comma-separated, tried in order after the primary.
+    #
+    # Each key carries its own tokens-per-minute quota, so a second key is
+    # extra capacity rather than a retry against the same exhausted budget —
+    # which is the distinction that makes failing over to one legitimate.
+    GROQ_API_KEYS_FALLBACK: str = ""
     XAI_API_KEY: str = ""
     LLM_PROVIDER: str = ""            # "groq" | "xai" | "" (auto)
     # Hard deadline on any model call. Observed Groq latency reached 26.7s on

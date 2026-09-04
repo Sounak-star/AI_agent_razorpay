@@ -86,6 +86,14 @@ class EventType(str, Enum):
     # ceiling turns one refusal into several and hides the real constraint.
     LLM_RATE_LIMITED = "LLM_RATE_LIMITED"
 
+    # A provider key was exhausted or rejected and the call moved to the next
+    # configured key. Recorded rather than silent: each key has its own quota,
+    # so this is extra capacity being consumed, and an operator reading a slow
+    # run should be able to see that the primary key ran out rather than
+    # guessing. Never emitted for a timeout or a connection failure — a second
+    # key on the same endpoint cannot help with either.
+    LLM_KEY_FAILOVER = "LLM_KEY_FAILOVER"
+
     # ── Terminal ──────────────────────────────────────────────────────────────
     SESSION_CLOSED = "SESSION_CLOSED"
 

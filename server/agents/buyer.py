@@ -32,7 +32,12 @@ from server.config import settings
 from server.mandate.issuer import sign_cart, sign_intent
 from server.mandate.schema import Cart, CartItem
 from server.db.session import SessionLocal
-from server.agents.llm import get_client_and_model
+from server.agents.llm import (
+    complete_with_failover,
+    get_client_and_model,
+    key_fingerprint,
+    resolve_all,
+)
 from server.ledger.chain import append
 from server.ledger.events import EventType
 from server.ledger.llm_cost import record_llm_call
@@ -46,21 +51,28 @@ _STUB_PATH = Path(__file__).parent.parent.parent / "evals" / "fixtures" / "buyer
 
 class LLMRateLimited(Exception):
     """
-    The provider refused the call because the account is over its rate limit.
+    Every configured provider key is over its rate limit.
 
-    Deliberately not retried. The ceiling is tokens-per-minute, so an immediate
-    retry sends the same oversized prompt into the same exhausted budget and
-    produces a second refusal — three failures logged where one happened, and
-    the real constraint buried under them. The session ends in its own terminal
-    state and the ledger says which limit was hit.
+    Raised only after the last key has been tried. Failing over between keys is
+    not a retry: each key carries its own tokens-per-minute quota, so the next
+    one is capacity that was not available to the first. Retrying the *same*
+    key would be the pointless kind — the same prompt into the same exhausted
+    budget — and is never done. Every failover is on the ledger as
+    LLM_KEY_FAILOVER, so a run that quietly burned through two keys still says
+    so.
+
+    The session ends in its own terminal state and the ledger records which
+    limit was hit and how many keys were tried.
     """
 
     def __init__(self, message: str, *, limit: str | None = None,
-                 remaining: str | None = None, reset: str | None = None) -> None:
+                 remaining: str | None = None, reset: str | None = None,
+                 keys_tried: int = 1) -> None:
         super().__init__(message)
         self.limit = limit
         self.remaining = remaining
         self.reset = reset
+        self.keys_tried = keys_tried
 
     def as_payload(self) -> dict:
         return {
@@ -68,7 +80,10 @@ class LLMRateLimited(Exception):
             "limit_tokens_per_min": self.limit,
             "remaining_tokens": self.remaining,
             "resets_in": self.reset,
-            "retried": False,
+            # No key was tried twice; the count is how many distinct quotas
+            # were exhausted before giving up.
+            "same_key_retried": False,
+            "keys_tried": self.keys_tried,
         }
 
 
@@ -338,16 +353,34 @@ class BuyerAgent:
             catalog_sample=catalog_sample,
         )
 
+        def _record_failover(from_cfg, error, next_index: int) -> None:
+            """A key ran out; say so on the ledger before using the next one."""
+            db = SessionLocal()
+            try:
+                append(db, session_id, EventType.LLM_KEY_FAILOVER, {
+                    "purpose": "buyer_propose_cart",
+                    "from_key": key_fingerprint(from_cfg.api_key),
+                    "to_key_index": next_index,
+                    "reason": type(error).__name__,
+                    "detail": str(error)[:200],
+                    # Each key has its own quota, so this is capacity rather
+                    # than a second attempt at an exhausted budget.
+                    "separate_quota": True,
+                })
+            finally:
+                db.close()
+
         started = time.monotonic()
         try:
-            msg = client.chat.completions.create(
-                model=model,
-                max_tokens=1024,
+            msg, used_cfg, attempt = complete_with_failover(
                 messages=[
                     {"role": "system", "content": system},
-                    {"role": "user", "content": user}
+                    {"role": "user", "content": user},
                 ],
+                max_tokens=1024,
+                on_failover=_record_failover,
             )
+            model = used_cfg.model
         except Exception as exc:                                  # noqa: BLE001
             if type(exc).__name__ != "RateLimitError":
                 raise
@@ -357,12 +390,15 @@ class BuyerAgent:
                 limit=headers.get("x-ratelimit-limit-tokens"),
                 remaining=headers.get("x-ratelimit-remaining-tokens"),
                 reset=headers.get("x-ratelimit-reset-tokens"),
+                keys_tried=len(resolve_all()),
             )
             db = SessionLocal()
             try:
                 append(db, session_id, EventType.LLM_RATE_LIMITED, {
                     "model": model,
                     "purpose": "buyer_propose_cart",
+                    # Reached only after every configured key was tried.
+                    "keys_tried": len(resolve_all()),
                     "prompt_chars": len(system) + len(user),
                     "catalog_items_shown": len(catalog_sample),
                     **rate.as_payload(),
