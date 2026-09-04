@@ -96,7 +96,8 @@ def setup():
 
 def demo_live(args):
     """Full live demo with real Razorpay and a live LLM."""
-    from server.agents.buyer import BuyerAgent, LLMRateLimited
+    from server.agents.buyer import BuyerAgent
+    from server.agents.llm import LLMCallFailed, LLMRateLimited
 
     print("=" * 60)
     print("  TOLLGATE — Agentic Commerce Rail  (LIVE DEMO)")
@@ -152,6 +153,14 @@ def demo_live(args):
         print(f"\n[AI] Asking AI to propose a cart for: '{goal}'...")
         try:
             proposal = agent.propose_cart(session_id)
+        except LLMCallFailed as exc:
+            print(f"\n[FAIL] Model call failed: {exc.kind} after {exc.waited_ms}ms")
+            close_session(
+                db, session, status="error",
+                reason=f"model call failed: {exc.kind}: {str(exc)[:140]}",
+            )
+            print("   Session closed with a named cause — see the ledger.")
+            return
         except LLMRateLimited as exc:
             # A provider quota, not a fault in this system. Its own terminal
             # state so the trail does not read as a failed decision.

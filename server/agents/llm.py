@@ -217,3 +217,148 @@ def complete_with_failover(
                 on_failover(cfg, exc, index + 1)
 
     raise last_error if last_error else LLMNotConfigured("no provider configured")
+
+# ── One way to call the model ─────────────────────────────────────────────────
+#
+# Both agents come through here. They used not to: the buyer agent classified
+# failures and wrote LLM_TIMEOUT / LLM_RATE_LIMITED / LLM_CALL_FAILED, while the
+# upsell agent called chat.completions.create directly and had none of it. That
+# is the same "two paths that can disagree" shape as the two sagas — a rate
+# limit on one path closed the session with a named cause in seconds, and on
+# the other it surfaced as an unclassified exception.
+#
+# Everything about calling a model lives here now: failover across keys,
+# classifying what went wrong, and recording it against the session.
+
+
+class LLMRateLimited(Exception):
+    """
+    Every configured key is over its rate limit.
+
+    Raised only after the last key has been tried. Moving between keys is not a
+    retry — each carries its own quota — and the same key is never tried twice.
+    """
+
+    def __init__(self, message: str, *, limit=None, remaining=None,
+                 reset=None, keys_tried: int = 1) -> None:
+        super().__init__(message)
+        self.limit = limit
+        self.remaining = remaining
+        self.reset = reset
+        self.keys_tried = keys_tried
+
+    def as_payload(self) -> dict:
+        return {
+            "message": str(self),
+            "limit_tokens_per_min": self.limit,
+            "remaining_tokens": self.remaining,
+            "resets_in": self.reset,
+            "same_key_retried": False,
+            "keys_tried": self.keys_tried,
+        }
+
+
+class LLMCallFailed(Exception):
+    """The model could not be called, for a reason that is not a quota."""
+
+    def __init__(self, message: str, *, kind: str, waited_ms: int) -> None:
+        super().__init__(message)
+        self.kind = kind
+        self.waited_ms = waited_ms
+
+
+def _timeout_kind(exc: Exception) -> bool:
+    """
+    Recognise a deadline overrun across SDK versions.
+
+    Matched by name because the exception type for a timeout has moved between
+    openai releases, and a missed match would downgrade a timeout to a generic
+    failure.
+    """
+    name = type(exc).__name__
+    return name in ("APITimeoutError", "Timeout", "APIConnectionTimeoutError")
+
+
+def call_model(
+    *,
+    messages: list[dict],
+    max_tokens: int,
+    purpose: str,
+    session_id: str | None = None,
+):
+    """
+    Call the model, failing over between keys, and record what happened.
+
+    Returns (response, config, latency_ms).
+
+    Raises LLMRateLimited when every key is exhausted, or LLMCallFailed for a
+    timeout or any other call failure. Both carry enough to close a session
+    with a named cause, which is the point: no caller should be able to leave a
+    session hanging until the stale sweeper picks it up.
+    """
+    import time as _time
+
+    from server.ledger.chain import append
+    from server.ledger.events import EventType
+
+    def _record(event, payload: dict) -> None:
+        if not session_id:
+            return
+        from server.db.session import SessionLocal
+
+        db = SessionLocal()
+        try:
+            append(db, session_id, event, {"purpose": purpose, **payload})
+        finally:
+            db.close()
+
+    def _on_failover(from_cfg, error, next_index: int) -> None:
+        _record(EventType.LLM_KEY_FAILOVER, {
+            "from_key": key_fingerprint(from_cfg.api_key),
+            "to_key_index": next_index,
+            "reason": type(error).__name__,
+            "detail": str(error)[:200],
+            "separate_quota": True,
+        })
+
+    started = _time.monotonic()
+    try:
+        response, cfg, _attempt = complete_with_failover(
+            messages=messages, max_tokens=max_tokens, on_failover=_on_failover,
+        )
+        return response, cfg, int((_time.monotonic() - started) * 1000)
+
+    except Exception as exc:                                      # noqa: BLE001
+        waited_ms = int((_time.monotonic() - started) * 1000)
+        kind = type(exc).__name__
+        keys = len(resolve_all())
+
+        if kind == "RateLimitError":
+            headers = getattr(getattr(exc, "response", None), "headers", {}) or {}
+            rate = LLMRateLimited(
+                str(exc)[:300],
+                limit=headers.get("x-ratelimit-limit-tokens"),
+                remaining=headers.get("x-ratelimit-remaining-tokens"),
+                reset=headers.get("x-ratelimit-reset-tokens"),
+                keys_tried=keys,
+            )
+            _record(EventType.LLM_RATE_LIMITED, {
+                "model": None,
+                "keys_tried": keys,
+                **rate.as_payload(),
+            })
+            raise rate from exc
+
+        event = (
+            EventType.LLM_TIMEOUT if _timeout_kind(exc)
+            else EventType.LLM_CALL_FAILED
+        )
+        _record(event, {
+            "error_type": kind,
+            "detail": str(exc)[:300],
+            "waited_ms": waited_ms,
+            "timeout_seconds": settings.LLM_TIMEOUT_SECONDS,
+            "keys_tried": keys,
+            "cart_proposed": False,
+        })
+        raise LLMCallFailed(str(exc)[:300], kind=kind, waited_ms=waited_ms) from exc

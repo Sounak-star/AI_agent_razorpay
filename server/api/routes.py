@@ -501,7 +501,8 @@ def _run_session_background(session_id: str) -> None:
     session open forever would be reintroducing the stale-session problem
     through a new door.
     """
-    from server.agents.buyer import BuyerAgent, LLMRateLimited
+    from server.agents.buyer import BuyerAgent
+    from server.agents.llm import LLMCallFailed, LLMRateLimited
     from server.db.session import SessionLocal
     from server.mandate.schema import IntentMandate
     from server.payments.saga import (
@@ -558,6 +559,17 @@ def _run_session_background(session_id: str) -> None:
         )
         try:
             proposal = agent.propose_cart(session_id)
+        except LLMCallFailed as exc:
+            # Timeout, unreachable provider, unparseable answer. The ledger
+            # already carries LLM_TIMEOUT or LLM_CALL_FAILED from call_model;
+            # this closes the session immediately with the cause in the reason,
+            # so it never sits active waiting to be swept as stale.
+            close_session(
+                db, session, status="error",
+                reason=f"model call failed: {exc.kind}: {exc}",
+                final_total_paise=0,
+            )
+            return
         except LLMRateLimited as exc:
             # The provider refused; nothing was proposed and nothing was
             # decided. Its own terminal state, so this is never read as the

@@ -33,7 +33,9 @@ from server.mandate.issuer import sign_cart, sign_intent
 from server.mandate.schema import Cart, CartItem
 from server.db.session import SessionLocal
 from server.agents.llm import (
-    complete_with_failover,
+    LLMCallFailed,
+    LLMRateLimited as _LLMRateLimited,
+    call_model,
     get_client_and_model,
     key_fingerprint,
     resolve_all,
@@ -49,42 +51,9 @@ log = logging.getLogger(__name__)
 _STUB_PATH = Path(__file__).parent.parent.parent / "evals" / "fixtures" / "buyer_responses.json"
 
 
-class LLMRateLimited(Exception):
-    """
-    Every configured provider key is over its rate limit.
-
-    Raised only after the last key has been tried. Failing over between keys is
-    not a retry: each key carries its own tokens-per-minute quota, so the next
-    one is capacity that was not available to the first. Retrying the *same*
-    key would be the pointless kind — the same prompt into the same exhausted
-    budget — and is never done. Every failover is on the ledger as
-    LLM_KEY_FAILOVER, so a run that quietly burned through two keys still says
-    so.
-
-    The session ends in its own terminal state and the ledger records which
-    limit was hit and how many keys were tried.
-    """
-
-    def __init__(self, message: str, *, limit: str | None = None,
-                 remaining: str | None = None, reset: str | None = None,
-                 keys_tried: int = 1) -> None:
-        super().__init__(message)
-        self.limit = limit
-        self.remaining = remaining
-        self.reset = reset
-        self.keys_tried = keys_tried
-
-    def as_payload(self) -> dict:
-        return {
-            "message": str(self),
-            "limit_tokens_per_min": self.limit,
-            "remaining_tokens": self.remaining,
-            "resets_in": self.reset,
-            # No key was tried twice; the count is how many distinct quotas
-            # were exhausted before giving up.
-            "same_key_retried": False,
-            "keys_tried": self.keys_tried,
-        }
+# Raised by llm.call_model. Re-exported so callers that already import it from
+# this module keep working; there is one definition, in llm.py.
+LLMRateLimited = _LLMRateLimited
 
 
 def build_propose_prompt(
@@ -353,92 +322,19 @@ class BuyerAgent:
             catalog_sample=catalog_sample,
         )
 
-        def _record_failover(from_cfg, error, next_index: int) -> None:
-            """A key ran out; say so on the ledger before using the next one."""
-            db = SessionLocal()
-            try:
-                append(db, session_id, EventType.LLM_KEY_FAILOVER, {
-                    "purpose": "buyer_propose_cart",
-                    "from_key": key_fingerprint(from_cfg.api_key),
-                    "to_key_index": next_index,
-                    "reason": type(error).__name__,
-                    "detail": str(error)[:200],
-                    # Each key has its own quota, so this is capacity rather
-                    # than a second attempt at an exhausted budget.
-                    "separate_quota": True,
-                })
-            finally:
-                db.close()
-
-        started = time.monotonic()
-        try:
-            msg, used_cfg, attempt = complete_with_failover(
-                messages=[
-                    {"role": "system", "content": system},
-                    {"role": "user", "content": user},
-                ],
-                max_tokens=1024,
-                on_failover=_record_failover,
-            )
-            model = used_cfg.model
-        except Exception as exc:                                  # noqa: BLE001
-            kind = type(exc).__name__
-
-            # A failed model call has to leave a trace of *why*.
-            #
-            # Only the rate limit was recorded before, so a timeout closed the
-            # session as a bare "error" with the cause buried in the closing
-            # entry's reason string, which the narrative never read. The
-            # operator saw "Considered 28 SKUs, chose 0 / Session closed
-            # (error)" and had nothing to act on.
-            if kind != "RateLimitError":
-                waited_ms = int((time.monotonic() - started) * 1000)
-                event = (
-                    EventType.LLM_TIMEOUT if kind == "APITimeoutError"
-                    else EventType.LLM_CALL_FAILED
-                )
-                db = SessionLocal()
-                try:
-                    append(db, session_id, event, {
-                        "model": model,
-                        "purpose": "buyer_propose_cart",
-                        "error_type": kind,
-                        "detail": str(exc)[:300],
-                        "waited_ms": waited_ms,
-                        "timeout_seconds": settings.LLM_TIMEOUT_SECONDS,
-                        "keys_tried": len(resolve_all()),
-                        "catalog_items_shown": len(catalog_sample),
-                        # Nothing was proposed, so nothing downstream ran.
-                        "cart_proposed": False,
-                    })
-                finally:
-                    db.close()
-                log.error("[buyer_agent] %s after %dms: %s", kind, waited_ms, exc)
-                raise
-            headers = getattr(getattr(exc, "response", None), "headers", {}) or {}
-            rate = LLMRateLimited(
-                str(exc)[:300],
-                limit=headers.get("x-ratelimit-limit-tokens"),
-                remaining=headers.get("x-ratelimit-remaining-tokens"),
-                reset=headers.get("x-ratelimit-reset-tokens"),
-                keys_tried=len(resolve_all()),
-            )
-            db = SessionLocal()
-            try:
-                append(db, session_id, EventType.LLM_RATE_LIMITED, {
-                    "model": model,
-                    "purpose": "buyer_propose_cart",
-                    # Reached only after every configured key was tried.
-                    "keys_tried": len(resolve_all()),
-                    "prompt_chars": len(system) + len(user),
-                    "catalog_items_shown": len(catalog_sample),
-                    **rate.as_payload(),
-                })
-            finally:
-                db.close()
-            log.error("[buyer_agent] rate limited by provider: %s", rate)
-            raise rate from exc
-        latency_ms = int((time.monotonic() - started) * 1000)
+        # One call site for both agents. Failover, classification and the
+        # ledger record all live in llm.call_model; this used to be duplicated
+        # here and absent from the upsell agent entirely.
+        msg, used_cfg, latency_ms = call_model(
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": user},
+            ],
+            max_tokens=1024,
+            purpose="buyer_propose_cart",
+            session_id=session_id,
+        )
+        model = used_cfg.model
 
         # Cost and latency are recorded as a ledger fact, not a client estimate.
         record_llm_call(

@@ -105,8 +105,8 @@ export function SessionStream({
                     card, and eight of those need 600px of a rail that has
                     about 350 — so the rail showed three sessions and the
                     operator scrolled to find anything. */}
-                <div className="flex items-center justify-between gap-2">
-                  <span className="flex min-w-0 items-baseline gap-1.5">
+                <div className="flex items-center justify-between gap-1">
+                  <span className="flex min-w-0 flex-1 items-baseline gap-1">
                     <span
                       className={`tabular shrink-0 t-meta ${
                         selected ? 'text-ink-050' : 'text-ink-300'

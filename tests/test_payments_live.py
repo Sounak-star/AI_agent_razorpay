@@ -27,6 +27,8 @@ import uuid
 
 import pytest
 
+from sqlalchemy.orm import sessionmaker as _sessionmaker
+
 from server.api import analytics, narrative as narrative_mod
 from server.config import settings
 from server.db.models import LedgerEntry, SessionRecord
@@ -1188,4 +1190,186 @@ class TestNoDuplicateDefinitions:
         assert not duplicates, (
             f"{module_path} defines {duplicates} more than once; "
             f"the later definition silently shadows the earlier one"
+        )
+
+
+# ── No LLM failure may hang a session ─────────────────────────────────────────
+
+class TestNoSessionHangs:
+    """
+    Stale must mean "we lost track of it", never "the provider said no".
+
+    Five probe sessions once sat at CATALOG_QUERIED for 78 seconds and were
+    swept as stale, because the only handling lived on the buyer path and the
+    exception classes were not even imported at the call site that caught them
+    — the `except` clause raised NameError while handling the original error,
+    so every failure fell through to a generic "error" with no cause.
+    """
+
+    FAILURES = [
+        ("RateLimitError", "rate_limited", EventType.LLM_RATE_LIMITED),
+        ("APITimeoutError", "error", EventType.LLM_TIMEOUT),
+        ("APIConnectionError", "error", EventType.LLM_CALL_FAILED),
+        ("BadRequestError", "error", EventType.LLM_CALL_FAILED),
+    ]
+
+    @pytest.mark.parametrize("kind,expect_status,expect_event", FAILURES,
+                             ids=[f[0] for f in FAILURES])
+    def test_failure_closes_the_session_with_a_named_cause(
+        self, test_db, monkeypatch, kind, expect_status, expect_event
+    ):
+        import types as _types
+        import uuid as _uuid
+
+        from server.agents import llm as L
+        import server.api.routes as R
+        from server.db.models import SessionRecord
+
+        session = SessionRecord(
+            id=str(_uuid.uuid4()), buyer_id="hang_probe",
+            merchant_id=settings.MERCHANT_ID, goal="weekly groceries",
+            budget_paise=200_000, status="active",
+        )
+        test_db.add(session)
+        test_db.commit()
+
+        Boom = type(kind, (Exception,), {})
+
+        class Client:
+            def __init__(self, *a, **k): pass
+            class chat:
+                class completions:
+                    @staticmethod
+                    def create(**kwargs):
+                        raise Boom("provider said no")
+
+        monkeypatch.setattr(L, "openai", _types.SimpleNamespace(OpenAI=Client))
+        monkeypatch.setattr(settings, "STUB_MODE", False)
+        # A real sessionmaker on the test engine, not the test's own session.
+        #
+        # _run_session_background closes its session in a finally block, so
+        # handing it test_db closed the connection the assertions then needed.
+        # The conftest engine uses StaticPool, so a second session sees the same
+        # in-memory database.
+        _factory = _sessionmaker(bind=test_db.get_bind(), class_=type(test_db))
+        # Patched everywhere the name is bound, not just at its source.
+        #
+        # server/agents/buyer.py imports SessionLocal at module level, so it
+        # holds its own reference and kept opening the default database — which
+        # has no tables — while the assertions read the test's.
+        for target in (
+            "server.db.session.SessionLocal",
+            "server.agents.buyer.SessionLocal",
+        ):
+            monkeypatch.setattr(target, _factory, raising=False)
+
+        R._run_session_background(session.id)
+
+        test_db.refresh(session)
+        assert session.status == expect_status, (
+            f"{kind} left the session in {session.status!r}; it must reach its "
+            f"own terminal state rather than waiting to be swept as stale"
+        )
+
+        types_seen = events_for(test_db, session.id)
+        assert expect_event.value in types_seen, (
+            f"{kind} produced no {expect_event.value} entry, so the ledger "
+            f"cannot say why the session ended"
+        )
+        assert EventType.SESSION_CLOSED.value in types_seen
+        assert EventType.SESSION_STALE.value not in types_seen
+
+    def test_the_closing_entry_names_the_cause(self, test_db, monkeypatch):
+        """A reason of "agent run failed; see server log" is not a cause."""
+        import types as _types
+        import uuid as _uuid
+
+        from server.agents import llm as L
+        import server.api.routes as R
+        from server.db.models import LedgerEntry, SessionRecord
+
+        session = SessionRecord(
+            id=str(_uuid.uuid4()), buyer_id="hang_probe2",
+            merchant_id=settings.MERCHANT_ID, goal="weekly groceries",
+            budget_paise=200_000, status="active",
+        )
+        test_db.add(session)
+        test_db.commit()
+
+        Boom = type("APITimeoutError", (Exception,), {})
+
+        class Client:
+            def __init__(self, *a, **k): pass
+            class chat:
+                class completions:
+                    @staticmethod
+                    def create(**kwargs):
+                        raise Boom("Request timed out.")
+
+        monkeypatch.setattr(L, "openai", _types.SimpleNamespace(OpenAI=Client))
+        monkeypatch.setattr(settings, "STUB_MODE", False)
+        # A real sessionmaker on the test engine, not the test's own session.
+        #
+        # _run_session_background closes its session in a finally block, so
+        # handing it test_db closed the connection the assertions then needed.
+        # The conftest engine uses StaticPool, so a second session sees the same
+        # in-memory database.
+        _factory = _sessionmaker(bind=test_db.get_bind(), class_=type(test_db))
+        # Patched everywhere the name is bound, not just at its source.
+        #
+        # server/agents/buyer.py imports SessionLocal at module level, so it
+        # holds its own reference and kept opening the default database — which
+        # has no tables — while the assertions read the test's.
+        for target in (
+            "server.db.session.SessionLocal",
+            "server.agents.buyer.SessionLocal",
+        ):
+            monkeypatch.setattr(target, _factory, raising=False)
+
+        R._run_session_background(session.id)
+
+        closed = (
+            test_db.query(LedgerEntry)
+            .filter(
+                LedgerEntry.session_id == session.id,
+                LedgerEntry.event_type == EventType.SESSION_CLOSED.value,
+            )
+            .first()
+        )
+        reason = (closed.payload or {}).get("reason", "")
+        assert "APITimeoutError" in reason, (
+            f"closing reason {reason!r} does not name the failure"
+        )
+        assert "see server log" not in reason
+
+
+class TestOneModelCallSite:
+    """
+    Both agents call the model the same way.
+
+    The buyer agent classified failures and wrote ledger events; the upsell
+    agent called chat.completions.create directly and had neither. That is the
+    same shape as the two sagas that could disagree, and it is why a rate limit
+    behaved differently depending on which agent hit it.
+    """
+
+    def test_only_llm_module_creates_completions(self):
+        import re
+        from pathlib import Path as _Path
+
+        offenders = []
+        for path in _Path("server").rglob("*.py"):
+            if path.name == "llm.py":
+                continue
+            text = path.read_text(encoding="utf-8")
+            for line in text.splitlines():
+                stripped = line.strip()
+                if stripped.startswith("#"):
+                    continue          # a comment about the old call site
+                if "chat.completions.create" in stripped:
+                    offenders.append(f"{path}: {stripped[:70]}")
+
+        assert not offenders, (
+            "the model is called outside server/agents/llm.py, so failure "
+            f"handling can drift between call sites again: {offenders}"
         )

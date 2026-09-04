@@ -26,7 +26,7 @@ from pathlib import Path
 from typing import Optional
 
 from server.config import settings
-from server.agents.llm import get_client_and_model
+from server.agents.llm import LLMCallFailed, LLMRateLimited, call_model, get_client_and_model
 from server.ledger.llm_cost import record_llm_call
 from server.mandate.schema import Cart, CartItem
 from server.mcp.catalog import (
@@ -177,16 +177,22 @@ def _live_suggest(
         f"{json.dumps(catalog, indent=2)}"
     )
 
-    started = time.monotonic()
-    msg = client.chat.completions.create(
-        model=model,
-        max_tokens=64,
+    # The same call site the buyer agent uses.
+    #
+    # This called chat.completions.create directly, so it had no key failover
+    # and none of the failure classification: a rate limit here surfaced as an
+    # unclassified exception with nothing on the ledger, while the identical
+    # failure on the buyer path closed the session with a named cause.
+    msg, used_cfg, latency_ms = call_model(
         messages=[
             {"role": "system", "content": system},
-            {"role": "user", "content": user}
+            {"role": "user", "content": user},
         ],
+        max_tokens=64,
+        purpose="upsell_suggest",
+        session_id=session_id,
     )
-    latency_ms = int((time.monotonic() - started) * 1000)
+    model = used_cfg.model
 
     if session_id:
         record_llm_call(
